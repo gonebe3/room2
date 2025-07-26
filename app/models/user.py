@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import func
 from app.extensions import db, login_manager
 
 class User(db.Model, UserMixin):
@@ -12,11 +13,11 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     balance = db.Column(db.Numeric(10, 2), default=0.00)
 
-    created_on   = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    created_by   = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    modified_on  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    modified_by  = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    is_deleted   = db.Column(db.Boolean, default=False, nullable=False)
+    created_on  = db.Column(db.DateTime, server_default=func.now(), nullable=False)
+    created_by  = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    modified_on = db.Column(db.DateTime, server_default=func.now(), server_onupdate=func.now(), nullable=False)
+    modified_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    is_deleted  = db.Column(db.Boolean, default=False, nullable=False)
 
     is_active      = db.Column(db.Boolean, default=True)
     login_attempts = db.Column(db.Integer, default=0)
