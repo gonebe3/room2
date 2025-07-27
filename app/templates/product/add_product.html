@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}Naujos prekės pridėjimas{% endblock %}
+
+{% block content %}
+<div class="container add-product-container">
+    <div class="add-product-card">
+        <h2 class="add-product-title">Pridėti naują prekę</h2>
+        
+        <!-- Flash žinutės -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="alerts">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('add_product') }}" enctype="multipart/form-data" class="add-product-form">
+            <div class="form-group">
+                <label for="title">Prekės pavadinimas</label>
+                <input type="text" id="title" name="title" maxlength="120" required autofocus placeholder="Įveskite pavadinimą">
+            </div>
+            <div class="form-group">
+                <label for="brand">Gamintojas / prekės ženklas</label>
+                <input type="text" id="brand" name="brand" maxlength="64" required placeholder="Prekės ženklas">
+            </div>
+            <div class="form-group">
+                <label for="description">Prekės aprašymas</label>
+                <textarea id="description" name="description" rows="4" maxlength="800" required placeholder="Trumpas aprašymas"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="price">Kaina (€)</label>
+                    <input type="number" id="price" name="price" min="0.01" step="0.01" required placeholder="Kaina">
+                </div>
+                <div class="form-group">
+                    <label for="discount">Nuolaida (%)</label>
+                    <input type="number" id="discount" name="discount" min="0" max="99" step="1" placeholder="Pvz. 15">
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Kiekis sandėlyje</label>
+                    <input type="number" id="quantity" name="quantity" min="0" step="1" required placeholder="Kiekis">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="image">Prekės nuotrauka</label>
+                <input type="file" id="image" name="image" accept=".jpg,.jpeg,.png,.svg" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Pridėti prekę</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

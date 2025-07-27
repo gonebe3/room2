@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}Prisijungimas{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo-wrap">
+            <img src="{{ url_for('static', filename='images/prinona_logo.svg') }}" alt="Prinona logo" class="auth-logo">
+        </div>
+        <h2 class="auth-title">Prisijungti</h2>
+        
+        <!-- Flash žinutės -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="alerts">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('login') }}" autocomplete="on" class="auth-form">
+            <div class="form-group">
+                <label for="username">Naudotojo vardas</label>
+                <input type="text" id="username" name="username" maxlength="64" required autofocus placeholder="Įveskite naudotojo vardą">
+            </div>
+            <div class="form-group">
+                <label for="password">Slaptažodis</label>
+                <input type="password" id="password" name="password" minlength="8" maxlength="64" required placeholder="Slaptažodis">
+            </div>
+            <div class="form-options">
+                <label>
+                    <input type="checkbox" name="remember" value="1">
+                    Prisiminti mane
+                </label>
+                <a href="{{ url_for('forgot_password') }}" class="form-link">Pamiršote slaptažodį?</a>
+            </div>
+            <button type="submit" class="btn btn-block">Prisijungti</button>
+        </form>
+        <div class="auth-bottom-link">
+            Neturite paskyros? <a href="{{ url_for('register') }}" class="form-link">Registruotis</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

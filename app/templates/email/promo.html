@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Specialus pasiūlymas iš Prinona!</title>
+</head>
+<body style="background:#f6f8fb;margin:0;padding:0;font-family:sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;">
+        <tr>
+            <td align="center" style="padding:40px 0;">
+                <table width="430" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:13px;box-shadow:0 1px 8px #dde5f1;padding:0 24px;">
+                    <tr>
+                        <td align="center" style="padding-top:35px;">
+                            <img src="{{ logo_url }}" alt="Prinona" width="75" style="border-radius: 12px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding:22px 0 8px 0;">
+                            <h2 style="margin:0;color:#0A2463;font-size:1.23rem;letter-spacing:1px;">
+                                {{ promo_title }}
+                            </h2>
+                        </td>
+                    </tr>
+                    {% if promo_image_url %}
+                    <tr>
+                        <td align="center" style="padding-bottom:16px;">
+                            <img src="{{ promo_image_url }}" alt="Akcija" style="max-width: 96%; border-radius:10px;">
+                        </td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td align="center" style="padding-bottom:16px;">
+                            <p style="margin:0;color:#2b3759;font-size:1rem;line-height:1.6;">
+                                {{ promo_text }}
+                            </p>
+                        </td>
+                    </tr>
+                    {% if promo_button_url and promo_button_text %}
+                    <tr>
+                        <td align="center" style="padding-bottom:23px;">
+                            <a href="{{ promo_button_url }}" style="display:inline-block;background:#D8315B;color:#fff;font-weight:700;font-size:1.05rem;text-decoration:none;border-radius:9px;padding:13px 28px;letter-spacing:1.2px;">
+                                {{ promo_button_text }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% if promo_code %}
+                    <tr>
+                        <td align="center" style="padding-bottom:18px;">
+                            <div style="background:#3E92CC;color:#fff;display:inline-block;font-weight:700;font-size:1.12rem;border-radius:8px;padding:8px 18px;letter-spacing:1.1px;">
+                                Naudok kodą: {{ promo_code }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td align="center" style="padding-bottom:18px;">
+                            <p style="margin:0;color:#7a839c;font-size:0.91rem;">
+                                Nepražiopsokite! <b>Prinona</b> – išmaniai apsipirkti paprasta.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding-bottom:18px;">
+                            <p style="margin:0;color:#b2bac8;font-size:0.97rem;">
+                                Jei nebenorite gauti naujienų, galite <a href="{{ unsubscribe_url }}" style="color:#3E92CC;text-decoration:underline;">atsisakyti čia</a>.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding-bottom:17px;">
+                            <p style="margin:0;color:#7a839c;font-size:0.91rem;">
+                                Su pagarba,<br>
+                                <b>Prinona komanda</b>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}Mano užsakymai{% endblock %}
+
+{% block content %}
+<div class="container orders-container">
+    <h2 class="orders-title">Jūsų užsakymai</h2>
+
+    <div class="orders-table-wrap">
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Bendra suma (€)</th>
+                    <th>Statusas</th>
+                    <th>Prekių kiekis</th>
+                    <th>Veiksmai</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ order.total_price|round(2) }}</td>
+                    <td>
+                        {% if order.status == 'paid' %}
+                            <span class="order-status-paid">Apmokėta</span>
+                        {% elif order.status == 'pending' %}
+                            <span class="order-status-pending">Laukia apmokėjimo</span>
+                        {% elif order.status == 'canceled' %}
+                            <span class="order-status-canceled">Atšaukta</span>
+                        {% else %}
+                            <span class="order-status-other">{{ order.status|capitalize }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.item_count }}</td>
+                    <td>
+                        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-link btn-small" title="Peržiūrėti">
+                            <img src="{{ url_for('static', filename='images/icons/search.svg') }}" alt="Peržiūrėti" class="icon-table">
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="orders-empty">Neturite užsakymų.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
