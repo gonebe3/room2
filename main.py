@@ -5,7 +5,7 @@ from flask import Flask
 from config import Config
 
 # Importuojame tik extension'ų instancijas
-from app.utils.extensions import db, login_manager, mail, csrf, migrate, cache, admin, photos
+from app.extensions import db, login_manager, mail, csrf, migrate, cache, admin, photos
 
 def create_app():
     app = Flask(__name__)
