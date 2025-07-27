@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block title %}Mano profilis{% endblock %}
+
+{% block content %}
+<div class="container profile-container">
+    <h2 class="profile-title">Mano profilis</h2>
+
+    <!-- Profilio informacija -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename='images/icons/user.svg') }}" class="profile-avatar" alt="Vartotojas">
+            <div>
+                <div class="profile-username">{{ user.username }}</div>
+                <div class="profile-email">{{ user.email }}</div>
+            </div>
+            <a href="{{ url_for('edit_profile') }}" class="btn btn-secondary profile-edit-btn" title="Redaguoti profilį">
+                <span class="icon-edit"></span> Redaguoti
+            </a>
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="btn btn-logout profile-logout-btn" title="Atsijungti">
+                    <span class="icon-logout"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Balansas -->
+    <div class="profile-balance-card">
+        <div class="profile-balance-label">Balansas:</div>
+        <div class="profile-balance-amount">{{ user.balance }} €</div>
+        <a href="{{ url_for('add_balance') }}" class="btn btn-primary profile-balance-btn">Papildyti balansą</a>
+    </div>
+
+    <!-- Užsakymų istorija -->
+    <div class="profile-orders-section">
+        <h3 class="profile-orders-title">Mano užsakymai</h3>
+        {% if orders %}
+        <table class="profile-orders-table">
+            <thead>
+                <tr>
+                    <th>Užsakymo Nr.</th>
+                    <th>Data</th>
+                    <th>Kiekis</th>
+                    <th>Suma</th>
+                    <th>Statusas</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ order.total_items }}</td>
+                    <td>{{ order.total_price }} €</td>
+                    <td>
+                        <span class="order-status order-status-{{ order.status }}">
+                            {{ order.status|capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-link">Peržiūrėti</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div class="profile-orders-empty">
+                Jūs dar nesate pirkę produktų.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

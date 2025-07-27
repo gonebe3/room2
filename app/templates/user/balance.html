@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Papildyti balansą{% endblock %}
+
+{% block content %}
+<div class="container balance-container">
+    <h2 class="balance-title">Papildyti balansą</h2>
+    <div class="balance-card">
+        <div class="balance-info">
+            <div>Jūsų dabartinis balansas:</div>
+            <div class="balance-amount">{{ user.balance }} €</div>
+        </div>
+        <form method="POST" action="{{ url_for('add_balance') }}" class="balance-form">
+            <label for="amount">Suma (€)</label>
+            <input type="number" min="1" step="0.01" name="amount" id="amount" placeholder="Įveskite sumą..." required>
+            <button type="submit" class="btn btn-primary btn-block">Papildyti</button>
+        </form>
+
+        <!-- Vieta mock/test mokėjimui -->
+        <div class="balance-pay-mock">
+            <button type="button" class="btn btn-secondary" onclick="alert('Testinis mokėjimas sėkmingas (demonstracinė versija).')">
+                <img src="{{ url_for('static', filename='images/icons/credit-card.svg') }}" alt="Mokėjimas" style="width:23px; vertical-align: middle; margin-right: 0.4rem;">
+                Testinis mokėjimas
+            </button>
+            <div class="balance-pay-mock-note">
+                Demo: galima integruoti su Stripe, Braintree, t.t. (<span style="color:#777;">bus realus testavimas vėliau</span>)
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

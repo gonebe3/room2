@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block title %}Užsakymo detalės{% endblock %}
+
+{% block content %}
+<div class="container order-detail-container">
+    <h2 class="order-detail-title">Užsakymas #{{ order.id }}</h2>
+    <div class="order-detail-meta">
+        <div>Data: <b>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</b></div>
+        <div>Statusas: 
+            {% if order.status == 'paid' %}
+                <span class="order-status-paid">Apmokėta</span>
+            {% elif order.status == 'pending' %}
+                <span class="order-status-pending">Laukia apmokėjimo</span>
+            {% elif order.status == 'canceled' %}
+                <span class="order-status-canceled">Atšaukta</span>
+            {% else %}
+                <span class="order-status-other">{{ order.status|capitalize }}</span>
+            {% endif %}
+        </div>
+        <div>Bendra suma: <b>{{ order.total_price|round(2) }} €</b></div>
+    </div>
+
+    <div class="order-detail-table-wrap">
+        <table class="order-detail-table">
+            <thead>
+                <tr>
+                    <th>Pavadinimas</th>
+                    <th>Kiekis</th>
+                    <th>Kaina (vnt.)</th>
+                    <th>Iš viso (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items %}
+                <tr>
+                    <td>
+                        {{ item.product_title }}
+                        {% if item.reviewed %}
+                            <span class="order-item-reviewed" title="Jūsų atsiliepimas paliktas">
+                                <img src="{{ url_for('static', filename='images/icons/star-filled.svg') }}" alt="Atsiliepimas" style="width: 19px; vertical-align: middle;">
+                            </span>
+                        {% else %}
+                            <a href="{{ url_for('add_review', product_id=item.product_id) }}" class="btn btn-link btn-xsmall" title="Palikti atsiliepimą">
+                                <img src="{{ url_for('static', filename='images/icons/star.svg') }}" alt="Atsiliepimas" style="width: 19px; vertical-align: middle;">
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit_price|round(2) }}</td>
+                    <td>{{ (item.unit_price * item.quantity)|round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="text-align:right;"><b>Bendra suma:</b></td>
+                    <td><b>{{ order.total_price|round(2) }} €</b></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    {% if order.delivery_address %}
+    <div class="order-detail-address">
+        <b>Pristatymo adresas:</b> {{ order.delivery_address }}
+    </div>
+    {% endif %}
+
+    <div class="order-detail-back">
+        <a href="{{ url_for('orders') }}" class="btn btn-secondary">Grįžti į užsakymų sąrašą</a>
+    </div>
+</div>
+{% endblock %}

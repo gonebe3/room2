@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block title %}Prekių statistika{% endblock %}
+
+{% block content %}
+<div class="container admin-product-stats-container">
+    <h2 class="admin-product-stats-title">Prekių statistika</h2>
+
+    <div class="admin-product-stats-actions">
+        <form method="get" action="{{ url_for('admin_product_stats') }}" class="admin-product-stats-filter-form">
+            <select name="sort_by">
+                <option value="sold" {% if sort_by == 'sold' %}selected{% endif %}>Pagal pardavimų kiekį</option>
+                <option value="revenue" {% if sort_by == 'revenue' %}selected{% endif %}>Pagal pajamas</option>
+                <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Pagal įvertinimą</option>
+            </select>
+            <input type="text" name="q" placeholder="Ieškoti pagal pavadinimą..." value="{{ request.args.get('q', '') }}">
+            <button type="submit" class="btn btn-primary">Filtruoti</button>
+        </form>
+    </div>
+
+    <div class="admin-product-stats-table-wrap">
+        <table class="admin-product-stats-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Pavadinimas</th>
+                    <th>Kiekis sandėlyje</th>
+                    <th>Parduota vnt.</th>
+                    <th>Bendra suma (€)</th>
+                    <th>Vidutinis įvertinimas</th>
+                    <th>Veiksmai</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.title }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>{{ product.sold_qty }}</td>
+                    <td>{{ product.sold_sum }}</td>
+                    <td>
+                        <span class="product-rating">
+                            {% for i in range(1,6) %}
+                                {% if i <= product.avg_rating %}
+                                    <img src="{{ url_for('static', filename='images/icons/star-filled.svg') }}" alt="*" class="icon-star">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/icons/star.svg') }}" alt="-" class="icon-star">
+                                {% endif %}
+                            {% endfor %}
+                            <span class="product-rating-number">({{ product.avg_rating|round(2) }})</span>
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-link btn-small">
+                            <img src="{{ url_for('static', filename='images/icons/search.svg') }}" alt="Peržiūrėti" class="icon-table">
+                        </a>
+                        <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="btn btn-link btn-small">
+                            <img src="{{ url_for('static', filename='images/icons/edit.svg') }}" alt="Redaguoti" class="icon-table">
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="admin-product-stats-empty">Prekių nėra arba neatitinka filtrų.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
