@@ -13,6 +13,7 @@ import app.models.product
 import app.models.review
 import app.models.cart
 import app.models.order
+import app.models.discount
 
 def create_app():
     app = Flask(__name__)
