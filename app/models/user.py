@@ -22,6 +22,11 @@ class User(db.Model, UserMixin):
     is_active      = db.Column(db.Boolean, default=True)
     login_attempts = db.Column(db.Integer, default=0)
     locked_until   = db.Column(db.DateTime, nullable=True)
+    cart_items = db.relationship(
+        "Cart",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
