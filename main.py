@@ -22,6 +22,12 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    from datetime import datetime
+
+    @app.context_processor
+    def inject_now():
+        return {'now': datetime.now()}
+
     # Inicializuojame visus extension’us
     db.init_app(app)
     login_manager.init_app(app)
