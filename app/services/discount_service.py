@@ -36,7 +36,6 @@ def create_discount(form):
 def update_discount(discount, form):
     try:
         with db.session() as session:
-            # Persist existing instance from db
             db_discount = session.get(Discount, discount.id)
             if not db_discount:
                 return False
@@ -50,6 +49,19 @@ def update_discount(discount, form):
             return True
     except SQLAlchemyError as e:
         print(f"Error updating discount: {e}")
+        return False
+
+def activate_discount(discount):
+    try:
+        with db.session() as session:
+            db_discount = session.get(Discount, discount.id)
+            if db_discount:
+                db_discount.is_active = True
+                session.commit()
+                return True
+            return False
+    except SQLAlchemyError as e:
+        print(f"Error activating discount: {e}")
         return False
 
 def deactivate_discount(discount):
@@ -79,7 +91,9 @@ def delete_discount(discount):
         return False
 
 def validate_discount_code(code):
-    """Tikrinti ar nuolaidos kodas galioja (egzistuoja, aktyvus, galiojimo data)"""
+    """
+    Patikrina, ar nuolaidos kodas egzistuoja, yra aktyvus ir galioja šiandieną.
+    """
     with db.session() as session:
         stmt = select(Discount).where(
             Discount.code == code,

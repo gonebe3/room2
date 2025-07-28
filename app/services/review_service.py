@@ -52,3 +52,9 @@ def delete_review(review: Review):
     except SQLAlchemyError:
         db.session.rollback()
         return False
+    
+def get_reviews_by_user(user_id: int):
+    try:
+        return Review.query.filter_by(user_id=user_id, is_deleted=False).order_by(Review.created_at.desc()).all()
+    except SQLAlchemyError:
+        return []

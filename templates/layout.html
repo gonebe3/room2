@@ -44,7 +44,7 @@
                     </a>
                 {% endif %}
                 <!-- KREPŠELIS -->
-                <a href="{{ url_for('cart.cart') }}" class="cart-link">
+                <a href="{{ url_for('cart.view_cart') }}" class="cart-link">
                     <img src="{{ url_for('static', filename='images/icons/cart.svg') }}" class="icon icon-cart" alt="Krepšelis">
                     <span class="cart-count">{% if cart_count %}{{ cart_count }}{% else %}0{% endif %}</span>
                 </a>
@@ -104,7 +104,7 @@
         <div class="footer-content">
             <div>
                 <img src="{{ url_for('static', filename='images/prinona_logo.png') }}" class="footer-logo" alt="Prinona">
-                <strong>Prinona</strong> &copy; {{ now().year }}
+                <strong>Prinona</strong> &copy; {{ now.year }}
             </div>
             <div class="footer-links">
                 <a href="{{ url_for('main.contacts') }}">
