@@ -1,25 +1,30 @@
-# from sqlalchemy import Integer, ForeignKey, DateTime, func
-# from sqlalchemy.orm import Mapped, mapped_column, relationship
-# from app.utils.extensions import db
+from sqlalchemy import Integer, ForeignKey, DateTime, Boolean, func
+from app.utils.extensions import db
 
-# class Cart(db.Model):
-#     __tablename__ = "cart"
+class Cart(db.Model):
+    __tablename__ = "cart"
 
-#     id: Mapped[int] = mapped_column(primary_key=True)
-#     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-#     product_id: Mapped[int] = mapped_column(ForeignKey("product.id"), nullable=False)
-#     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-#     added_on: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    added_on = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-#     user = relationship("User", back_populates="cart_items")
-#     product = relationship("Product", back_populates="cart_items")
+    # sekimo laukai:
+    created_on = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    modified_on = db.Column(db.DateTime(timezone=True), server_default=func.now(), server_onupdate=func.now(), nullable=False)
+    modified_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
-#     def __repr__(self):
-#         return f"<Cart id={self.id} user_id={self.user_id} product_id={self.product_id} qty={self.quantity}>"
+    # Ryšiai
+    user = db.relationship("User", backref="cart_items", foreign_keys=[user_id])
+    product = db.relationship("Product", backref="cart_items")
+    creator = db.relationship("User", foreign_keys=[created_by], uselist=False, post_update=True)
+    modifier = db.relationship("User", foreign_keys=[modified_by], uselist=False, post_update=True)
 
-# # Papildomai User ir Product modeliuose:
-# # User:
-# # cart_items = relationship("Cart", back_populates="user", cascade="all, delete-orphan")
-
-# # Product:
-# # cart_items = relationship("Cart", back_populates="product", cascade="all, delete-orphan")
+    def __repr__(self):
+        return (
+            f"<Cart id={self.id} user_id={self.user_id} "
+            f"product_id={self.product_id} qty={self.quantity} is_deleted={self.is_deleted}>"
+        )

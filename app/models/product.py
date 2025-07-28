@@ -22,6 +22,10 @@ class Product(db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False
     )
-
+    cart_items = db.relationship(
+        "Cart",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
     def __repr__(self):
         return f"<Product {self.name}>"
