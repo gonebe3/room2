@@ -15,6 +15,7 @@ import app.models.order
 import app.models.review
 import app.models.discount
 import app.models.order_item
+
 # Jei pridėsite daugiau modelių – importuokite čia (svarbu migracijoms!)
 # --- Modelių importų BLOKAS pabaiga ---
 
@@ -50,6 +51,7 @@ def create_app():
     from app.routes.product_routes import product_bp
     from app.routes.review_routes import review_bp
     from app.routes.user_routes import user_bp
+    from app.routes.main_routes import main_bp
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
@@ -59,6 +61,7 @@ def create_app():
     app.register_blueprint(product_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(main_bp)
 
     # Error handleriai, jei yra
     try:
