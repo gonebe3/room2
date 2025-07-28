@@ -6,7 +6,7 @@ from app.services.product_service import (
     update_product, deactivate_product, update_product_quantity, delete_product
 )
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+admin_bp = Blueprint('custom_admin', __name__, url_prefix='/admin')
 
 # Universalus admin dekoratorius – tik adminams
 def admin_required(func):

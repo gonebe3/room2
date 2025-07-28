@@ -11,6 +11,7 @@ class Product(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=0)
     image_filename = db.Column(db.String(255), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
+    
     created_at = db.Column(
         db.DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -22,10 +23,27 @@ class Product(db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False
     )
+
+    # Santykis su Cart modeliu
     cart_items = db.relationship(
         "Cart",
-        back_populates="user",
+        back_populates="product",
         cascade="all, delete-orphan"
     )
+
+    # Santykis su OrderItem modeliu
+    order_items = db.relationship(
+        "OrderItem",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
+
+    # Santykis su Review modeliu
+    reviews = db.relationship(
+        "Review",
+        back_populates="product",
+        lazy=True
+    )
+
     def __repr__(self):
         return f"<Product {self.name}>"
