@@ -2,7 +2,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
-from app.extensions import db, login_manager
+from app.utils.extensions import db, login_manager
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
