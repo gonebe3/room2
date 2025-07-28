@@ -10,6 +10,7 @@ from app.utils.extensions import db, migrate
 # IMPORTUOK TIK TUOS MODELIUS, KURIUOS NORI MIGRUOTI
 import app.models.user
 import app.models.product
+import app.models.review
 # NERA import app.models.cart
 # NERA import app.models.order
 
