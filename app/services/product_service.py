@@ -1,67 +1,82 @@
 from app.models.product import Product
-from app.extensions import db
-from sqlalchemy import select, update, delete, asc, desc
+from app.utils.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.utils import secure_filename
+import os
 
 def get_all_products():
-    with db.session() as session:
-        stmt = select(Product)
-        return session.execute(stmt).scalars().all()
+    return Product.query.order_by(Product.created_at.desc()).all()
 
 def get_product_by_id(product_id):
-    with db.session() as session:
-        stmt = select(Product).where(Product.id == product_id)
-        return session.execute(stmt).scalar_one_or_none()
+    return Product.query.get(product_id)
 
-def create_product(data):
+def create_product(form, upload_folder):
     try:
-        with db.session() as session:
-            product = Product(**data)
-            session.add(product)
-            session.commit()
-            return product
+        filename = None
+        if form.image.data:
+            filename = secure_filename(form.image.data.filename)
+            form.image.data.save(os.path.join(upload_folder, filename))
+        product = Product(
+            name=form.name.data,
+            description=form.description.data,
+            price=form.price.data,
+            quantity=form.quantity.data,
+            image_filename=filename,
+            is_active=form.is_active.data,
+        )
+        db.session.add(product)
+        db.session.commit()
+        return product
     except SQLAlchemyError as e:
-        print(f"Error creating product:")
+        db.session.rollback()
+        print(f"Klaida kuriant produktą: {e}")
         return None
 
-def update_product(product_id, data):
+def update_product(product, form, upload_folder):
     try:
-        with db.session() as session:
-            stmt = select(Product).where(Product.id == product_id)
-            product = session.execute(stmt).scalar_one_or_none()
-            if not product:
-                print("Product not found.")
-                return None
-
-            for key, value in data.items():
-                setattr(product, key, value)
-            session.commit()
-            return product
-    except SQLAlchemyError:
-        print(f"Error updating product:")
+        if form.image.data:
+            filename = secure_filename(form.image.data.filename)
+            form.image.data.save(os.path.join(upload_folder, filename))
+            product.image_filename = filename
+        product.name = form.name.data
+        product.description = form.description.data
+        product.price = form.price.data
+        product.quantity = form.quantity.data
+        product.is_active = form.is_active.data
+        db.session.commit()
+        return product
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Klaida atnaujinant produktą: {e}")
         return None
 
-def delete_product(product_id):
+def deactivate_product(product):
     try:
-        with db.session() as session:
-            stmt = select(Product).where(Product.id == product_id)
-            product = session.execute(stmt).scalar_one_or_none()
-            if product:
-                session.delete(product)
-                session.commit()
-                return True
-            print("Product not found.")
-            return False
-    except SQLAlchemyError:
-        print(f"Error deleting product")
+        product.is_active = False
+        db.session.commit()
+        return True
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Klaida deaktyvuojant produktą: {e}")
         return False
 
-def filter_products_by_price(order="asc"):
-    with db.session() as session:
-        stmt = select(Product).order_by(asc(Product.price) if order == "asc" else desc(Product.price))
-        return session.execute(stmt).scalars().all()
+def update_product_quantity(product, quantity):
+    try:
+        product.quantity = quantity
+        db.session.commit()
+        return True
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Klaida atnaujinant kiekį: {e}")
+        return False
 
-def filter_products_by_rating(order="desc"):
-    with db.session() as session:
-        stmt = select(Product).order_by(desc(Product.rating) if order == "desc" else asc(Product.rating))
-        return session.execute(stmt).scalars().all()
+# Jei reikės ištrynimo visam laikui
+def delete_product(product):
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        return True
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Klaida trinant produktą: {e}")
+        return False

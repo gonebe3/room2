@@ -2,7 +2,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
-from app.extensions import db, login_manager
+from app.utils.extensions import db, login_manager
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
@@ -13,6 +13,12 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     balance = db.Column(db.Numeric(10, 2), default=0.00)
 
+    # Email patvirtinimui:
+    email_confirmed = db.Column(db.Boolean, default=False, nullable=False)
+    email_confirmed_at = db.Column(db.DateTime, nullable=True)
+    email_confirmation_token = db.Column(db.String(128), nullable=True)
+
+    # Audito laukai:
     created_on  = db.Column(db.DateTime, server_default=func.now(), nullable=False)
     created_by  = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     modified_on = db.Column(db.DateTime, server_default=func.now(), server_onupdate=func.now(), nullable=False)
@@ -23,11 +29,33 @@ class User(db.Model, UserMixin):
     login_attempts = db.Column(db.Integer, default=0)
     locked_until   = db.Column(db.DateTime, nullable=True)
 
+    # Ryšiai:
+    cart_items = db.relationship(
+        "Cart",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+    reviews = db.relationship(
+        "Review",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+    orders = db.relationship(
+        "Order",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def is_admin(self):
+        # Galima išplėsti logiką vėliau, jei pridėsite admin lygį
+        return getattr(self, 'role', None) == 'admin'
 
 @login_manager.user_loader
 def load_user(user_id):
