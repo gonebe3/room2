@@ -4,7 +4,7 @@ from app.forms.order_form import OrderForm
 from app.services.order_service import (
     get_all_orders,
     get_order_by_id,
-    get_user_orders,
+    get_orders_by_user,     # <-- teisingas pavadinimas!
     create_order,
     update_order_status,
     delete_order
@@ -12,7 +12,7 @@ from app.services.order_service import (
 
 order_bp = Blueprint('order', __name__, url_prefix='/orders')
 
-# Tik adminams (jei naudosite vieną route failą – kitaip daryk atskirą admin blueprintą)
+# Tik adminams (jei norite atskirti, naudokite admin blueprint)
 def admin_required(func):
     from functools import wraps
     @wraps(func)
@@ -27,7 +27,7 @@ def admin_required(func):
 @order_bp.route('/')
 @login_required
 def user_orders():
-    orders = get_user_orders(current_user.id)
+    orders = get_orders_by_user(current_user.id)   # <-- PATAISYTA!
     return render_template('order/order.html', orders=orders)
 
 # Vieno užsakymo detali peržiūra (vartotojui)
