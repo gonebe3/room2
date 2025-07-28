@@ -12,7 +12,7 @@ import app.models.user
 import app.models.product
 import app.models.review
 import app.models.cart
-# NERA import app.models.order
+import app.models.order
 
 def create_app():
     app = Flask(__name__)
