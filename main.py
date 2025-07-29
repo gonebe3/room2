@@ -15,8 +15,6 @@ import app.models.order
 import app.models.review
 import app.models.discount
 import app.models.order_item
-
-# Jei pridėsite daugiau modelių – importuokite čia (svarbu migracijoms!)
 # --- Modelių importų BLOKAS pabaiga ---
 
 def create_app():
@@ -42,7 +40,8 @@ def create_app():
         configure_uploads(app, photos)
         patch_request_class(app, size=5 * 1024 * 1024)  # 5 MB limitas
 
-    # Blueprint’ų registracija (importai viduje funkcijos!)
+    # -------- BLUEPRINT'Ų REGISTRACIJA --------
+    # SVARBU: blueprint'us importuok ir registruok TIK VIENĄ KARTĄ!
     from app.routes.admin_routes import admin_bp
     from app.routes.auth_routes import auth_bp
     from app.routes.cart_routes import cart_bp
@@ -53,6 +52,7 @@ def create_app():
     from app.routes.user_routes import user_bp
     from app.routes.main_routes import main_bp
 
+    # Registruok blueprint'us tik vieną kartą (jokių dublikatų)
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(cart_bp)

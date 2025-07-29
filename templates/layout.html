@@ -66,7 +66,14 @@
                 </a></li>
                 <li><a href="#"><img src="{{ url_for('static', filename='images/icons/filter.svg') }}" class="icon icon-filter" alt="Filtruoti"> Filtruoti</a></li>
                 <li><a href="#"><img src="{{ url_for('static', filename='images/icons/discount.svg') }}" class="icon icon-discount" alt="Akcijos"> Akcijos</a></li>
-                <li><a href="#"><img src="{{ url_for('static', filename='images/icons/settings.svg') }}" class="icon icon-settings" alt="Nustatymai"> Nustatymai</a></li>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                    <li>
+                        <a href="{{ url_for('admin.dashboard') }}">
+                            <img src="{{ url_for('static', filename='images/icons/settings.svg') }}" class="icon icon-settings" alt="Admin panelė">
+                            Admin panelė
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
             <!-- PAIEŠKOS FORMA -->
             <form action="{{ url_for('product.product_list') }}" method="get" class="search-form">

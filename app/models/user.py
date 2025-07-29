@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(512), nullable=False)
     balance = db.Column(db.Numeric(10, 2), default=0.00)
+    role = db.Column(db.String(16), default='user', nullable=False)
 
     # Email patvirtinimui:
     email_confirmed = db.Column(db.Boolean, default=False, nullable=False)
