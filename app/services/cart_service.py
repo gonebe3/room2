@@ -28,10 +28,10 @@ def add_to_cart(user_id: int, product_id: int, quantity: int) -> bool:
     except SQLAlchemyError:
         return False
 
-def update_cart_item(user_id: int, product_id: int, quantity: int) -> bool:
+def update_cart_item(user_id: int, cart_item_id: int, quantity: int) -> bool:
     try:
         with db.session() as session:
-            stmt = select(Cart).where(Cart.user_id == user_id, Cart.product_id == product_id)
+            stmt = select(Cart).where(Cart.user_id == user_id, Cart.id == cart_item_id)
             cart_item = session.execute(stmt).scalar_one_or_none()
             if cart_item:
                 cart_item.quantity = quantity
@@ -41,10 +41,10 @@ def update_cart_item(user_id: int, product_id: int, quantity: int) -> bool:
     except SQLAlchemyError:
         return False
 
-def remove_from_cart(user_id: int, product_id: int) -> bool:
+def remove_from_cart(user_id: int, cart_item_id: int) -> bool:
     try:
         with db.session() as session:
-            stmt = select(Cart).where(Cart.user_id == user_id, Cart.product_id == product_id)
+            stmt = select(Cart).where(Cart.user_id == user_id, Cart.id == cart_item_id)
             cart_item = session.execute(stmt).scalar_one_or_none()
             if cart_item:
                 session.delete(cart_item)
