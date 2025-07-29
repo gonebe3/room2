@@ -16,23 +16,24 @@ cart_bp = Blueprint('cart', __name__, url_prefix='/cart')
 @login_required
 def view_cart():
     cart_items = get_cart_items(current_user.id)
-    total = sum(item.product.price * item.quantity for item in cart_items)
-    return render_template('cart/cart.html', cart_items=cart_items, total=total)
 
-@cart_bp.route('/add', methods=['POST'])
-@login_required
-def add_product_to_cart():
-    form = CartAddForm()
-    if form.validate_on_submit():
-        product = get_product_by_id(form.product_id.data)
-        if not product:
-            flash('Prekė nerasta.', 'danger')
-            return redirect(url_for('product.product_list'))
-        add_to_cart(user_id=current_user.id, product_id=product.id, quantity=form.quantity.data)
-        flash('Prekė pridėta į krepšelį!', 'success')
-        return redirect(url_for('cart.view_cart'))
-    flash('Neteisingi duomenys.', 'danger')
-    return redirect(url_for('product.product_list'))
+    # Apskaičiuojam suvestines (jei nenaudoji serviso – calculate_cart_total, skaičiuok tiesiai)
+    total = sum(item.product.price * item.quantity for item in cart_items)
+    total_discount = sum(
+        (item.product.price - item.product.discount_price) * item.quantity
+        for item in cart_items
+        if getattr(item.product, "discount_price", None)
+    )
+    total_final = total - total_discount
+
+    cart = {
+        "items": cart_items,
+        "total": total,
+        "total_discount": total_discount,
+        "total_final": total_final,
+    }
+
+    return render_template('cart/cart.html', cart=cart)
 
 @cart_bp.route('/update', methods=['POST'])
 @login_required
@@ -51,6 +52,7 @@ def update_product_in_cart():
     else:
         flash('Neteisingi duomenys.', 'danger')
     return redirect(url_for('cart.view_cart'))
+
 
 @cart_bp.route('/remove', methods=['POST'])
 @login_required
