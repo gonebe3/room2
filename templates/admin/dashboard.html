@@ -12,7 +12,7 @@
             </div>
             <div class="admin-card-title">Naudotojai</div>
             <div class="admin-card-value">{{ stats.users_count }}</div>
-            <a href="{{ url_for('admin.user_list') }}" class="admin-card-link">Žiūrėti visus</a>
+            <a href="{{ url_for('admin.user_list') }}" class="btn btn-admin">Redaguoti</a>
         </div>
         <div class="admin-card">
             <div class="admin-card-icon admin-card-products">
@@ -20,7 +20,7 @@
             </div>
             <div class="admin-card-title">Prekės</div>
             <div class="admin-card-value">{{ stats.products_count }}</div>
-            <a href="{{ url_for('admin.product_stats') }}" class="admin-card-link">Statistika</a>
+            <a href="{{ url_for('admin.product_list') }}" class="btn btn-admin">Redaguoti</a>
         </div>
         <div class="admin-card">
             <div class="admin-card-icon admin-card-orders">
@@ -28,7 +28,7 @@
             </div>
             <div class="admin-card-title">Užsakymai</div>
             <div class="admin-card-value">{{ stats.orders_count }}</div>
-            <a href="{{ url_for('admin.orders') }}" class="admin-card-link">Žiūrėti visus</a>
+            <a href="{{ url_for('admin.orders') }}" class="btn btn-admin">Redaguoti</a>
         </div>
         <div class="admin-card">
             <div class="admin-card-icon admin-card-discounts">
@@ -36,7 +36,7 @@
             </div>
             <div class="admin-card-title">Nuolaidos</div>
             <div class="admin-card-value">{{ stats.discounts_count }}</div>
-            <a href="{{ url_for('admin.discounts') }}" class="admin-card-link">Tvarkyti</a>
+            <a href="{{ url_for('admin.discounts') }}" class="btn btn-admin">Redaguoti</a>
         </div>
     </div>
 
@@ -52,11 +52,11 @@
         </div>
         <div class="admin-summary-block">
             <div class="admin-summary-title">Populiariausia prekė</div>
-            <div class="admin-summary-value">{{ stats.top_product_name }}</div>
+            <div class="admin-summary-value">{{ stats.top_product_name or '-' }}</div>
         </div>
         <div class="admin-summary-block">
             <div class="admin-summary-title">Geriausias klientas</div>
-            <div class="admin-summary-value">{{ stats.top_client_name }}</div>
+            <div class="admin-summary-value">{{ stats.top_client_name or '-' }}</div>
         </div>
     </div>
 </div>
