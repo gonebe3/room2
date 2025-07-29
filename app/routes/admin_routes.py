@@ -1,11 +1,15 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app.forms.product_form import ProductForm
+from app.forms.admin_user_form import AdminUserForm
 from app.services.product_service import (
     get_all_products, get_product_by_id, create_product,
     update_product, deactivate_product, update_product_quantity, delete_product
 )
-from app.services.user_service import get_all_users
+from app.services.user_service import (
+    get_all_users, get_user_by_id, admin_create_user,
+    admin_update_user, delete_user
+)
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -25,7 +29,6 @@ def admin_required(func):
 @login_required
 @admin_required
 def dashboard():
-    # Realius skaičius gauk iš duombazės
     stats = {
         "users_count": len(get_all_users()),
         "products_count": len(get_all_products()),
@@ -38,13 +41,64 @@ def dashboard():
     }
     return render_template('admin/dashboard.html', stats=stats)
 
-# --- USERS ---
+# --- USERS CRUD ---
+
 @admin_bp.route('/users')
 @login_required
 @admin_required
 def user_list():
     users = get_all_users()
-    return render_template('admin/user_list.html', users=users)
+    return render_template('admin/users/list.html', users=users)
+
+@admin_bp.route('/users/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_user():
+    form = AdminUserForm()
+    if form.validate_on_submit():
+        user, error = admin_create_user(form)
+        if user:
+            flash('Vartotojas sukurtas sėkmingai.', 'success')
+            return redirect(url_for('admin.user_list'))
+        else:
+            flash(error or 'Klaida kuriant vartotoją.', 'danger')
+    return render_template('admin/users/add.html', form=form)
+
+@admin_bp.route('/users/edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_user(user_id):
+    user = get_user_by_id(user_id)
+    if not user:
+        flash('Vartotojas nerastas.', 'danger')
+        return redirect(url_for('admin.user_list'))
+    form = AdminUserForm(obj=user)
+    if form.validate_on_submit():
+        data = form.data.copy()
+        if not form.password.data:
+            data.pop('password', None)
+        else:
+            user.set_password(form.password.data)
+        data.pop('csrf_token', None)
+        data.pop('submit', None)
+        success = admin_update_user(user_id, data)
+        if success:
+            flash("Vartotojo duomenys atnaujinti.", "success")
+        else:
+            flash("Klaida atnaujinant vartotoją.", "danger")
+        return redirect(url_for('admin.user_list'))
+    return render_template('admin/users/edit.html', form=form, user=user)
+
+@admin_bp.route('/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user_route(user_id):
+    success = delete_user(user_id)
+    if success:
+        flash('Vartotojas ištrintas.', 'success')
+    else:
+        flash('Klaida šalinant vartotoją.', 'danger')
+    return redirect(url_for('admin.user_list'))
 
 # --- PRODUCTS LIST ---
 @admin_bp.route('/products')
@@ -160,3 +214,13 @@ def orders():
 def discounts():
     # TODO: Implement real discounts management
     return render_template('admin/discounts.html')
+
+@admin_bp.route('/users/<int:user_id>')
+@login_required
+@admin_required
+def user_detail(user_id):
+    user = get_user_by_id(user_id)
+    if not user:
+        flash("Vartotojas nerastas.", "danger")
+        return redirect(url_for('admin.user_list'))
+    return render_template('admin/users/detail.html', user=user)
