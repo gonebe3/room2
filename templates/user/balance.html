@@ -9,7 +9,7 @@
             <div>Jūsų dabartinis balansas:</div>
             <div class="balance-amount">{{ user.balance }} €</div>
         </div>
-        <form method="POST" action="{{ url_for('add_balance') }}" class="balance-form">
+        <form method="POST" action="{{ url_for('user.balance') }}" class="balance-form">
             <label for="amount">Suma (€)</label>
             <input type="number" min="1" step="0.01" name="amount" id="amount" placeholder="Įveskite sumą..." required>
             <button type="submit" class="btn btn-primary btn-block">Papildyti</button>

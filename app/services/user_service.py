@@ -38,12 +38,7 @@ def authenticate_user(username: str, password: str):
     return None
 
 def register_new_user(form):
-    """
-    Registruoja naują vartotoją pagal WTForm objektą.
-    Grąžina (user, error) – jei error None, registracija sėkminga.
-    """
     try:
-        # Patikriname, ar vardas/el. paštas jau naudojamas
         if get_user_by_username(form.username.data):
             return None, "Toks vartotojo vardas jau egzistuoja."
         if get_user_by_email(form.email.data):
@@ -57,7 +52,8 @@ def register_new_user(form):
             session.add(user)
             session.commit()
             return user, None
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
+        print(f"Registracijos klaida: {e}")  # <-- šita eilutė
         return None, "Įvyko klaida registruojant vartotoją."
 
 def update_user_balance(user_id: int, amount: float) -> bool:

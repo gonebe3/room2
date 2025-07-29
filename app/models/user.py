@@ -10,7 +10,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(512), nullable=False)
     balance = db.Column(db.Numeric(10, 2), default=0.00)
 
     # Email patvirtinimui:
@@ -29,22 +29,30 @@ class User(db.Model, UserMixin):
     login_attempts = db.Column(db.Integer, default=0)
     locked_until   = db.Column(db.DateTime, nullable=True)
 
-    # Ryšiai:
+    # --------- RYŠIAI ---------
+    # Svarbu: Privaloma nurodyti foreign_keys, jei modelyje yra daugiau nei vienas ryšys į tą pačią lentelę!
+
     cart_items = db.relationship(
         "Cart",
         back_populates="user",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        foreign_keys="[Cart.user_id]"
     )
     reviews = db.relationship(
         "Review",
         back_populates="user",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        foreign_keys="[Review.user_id]"
     )
     orders = db.relationship(
         "Order",
         back_populates="user",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        foreign_keys="[Order.user_id]"
     )
+    # Jei reikia – pridėkite ir sekimo (audit) laukų relationship'us:
+    # created_cart_items = db.relationship("Cart", foreign_keys="[Cart.created_by]")
+    # modified_cart_items = db.relationship("Cart", foreign_keys="[Cart.modified_by]")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

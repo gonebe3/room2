@@ -23,9 +23,17 @@ class Review(db.Model):
     )
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
-    # Ryšiai (galėsime naudoti su .user, .product)
-    user = db.relationship("User", backref="reviews", lazy=True)
-    product = db.relationship("Product", backref="reviews", lazy=True)
+    # Ryšiai
+    user = db.relationship(
+        "User",
+        back_populates="reviews",
+        foreign_keys=[user_id]
+    )
+    product = db.relationship(
+        "Product",
+        back_populates="reviews",
+        foreign_keys=[product_id]
+    )
 
     def __repr__(self):
         return f"<Review {self.id} | User: {self.user_id} | Product: {self.product_id} | Rating: {self.rating}>"
