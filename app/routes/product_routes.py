@@ -10,6 +10,8 @@ from app.services.product_service import (
     update_product_quantity,
     delete_product
 )
+import os
+
 
 product_bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -39,8 +41,9 @@ def add_product():
         flash("Prieiga tik administratoriams.", "danger")
         return redirect(url_for('product.product_list'))
     form = ProductForm()
+    upload_folder = os.path.join(current_app.root_path, 'static', 'images', 'products')  # <<< PAKEISTA
     if form.validate_on_submit():
-        product = create_product(form)
+        product = create_product(form, upload_folder)  # <<< PAKEISTA
         if product:
             flash('Prekė pridėta sėkmingai.', 'success')
             return redirect(url_for('product.product_list'))
@@ -60,8 +63,9 @@ def edit_product(product_id):
         flash('Prekė nerasta.', 'danger')
         return redirect(url_for('product.product_list'))
     form = ProductForm(obj=product)
+    upload_folder = os.path.join(current_app.root_path, 'static', 'images', 'products')  # <<< PAKEISTA
     if form.validate_on_submit():
-        updated = update_product(product, form)
+        updated = update_product(product, form, upload_folder)  # <<< PAKEISTA
         if updated:
             flash('Prekė atnaujinta.', 'success')
             return redirect(url_for('product.product_list'))
