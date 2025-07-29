@@ -17,11 +17,29 @@ class OrderItem(db.Model):
     modified_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     is_deleted  = db.Column(db.Boolean, default=False, nullable=False)
 
-    # Ryšiai
-    order = db.relationship("Order", backref="order_items", foreign_keys=[order_id])
-    product = db.relationship("Product", backref="order_items", foreign_keys=[product_id])
-    creator = db.relationship("User", foreign_keys=[created_by], uselist=False, post_update=True)
-    modifier = db.relationship("User", foreign_keys=[modified_by], uselist=False, post_update=True)
+    # Ryšiai: naudokime TIK back_populates!
+    order = db.relationship(
+        "Order",
+        back_populates="order_items",
+        foreign_keys=[order_id]
+    )
+    product = db.relationship(
+        "Product",
+        back_populates="order_items",
+        foreign_keys=[product_id]
+    )
+    creator = db.relationship(
+        "User",
+        foreign_keys=[created_by],
+        uselist=False,
+        post_update=True
+    )
+    modifier = db.relationship(
+        "User",
+        foreign_keys=[modified_by],
+        uselist=False,
+        post_update=True
+    )
 
     def __repr__(self):
         return (
