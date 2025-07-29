@@ -6,30 +6,16 @@ from flask_migrate import Migrate
 from flask_caching import Cache
 from flask_admin import Admin
 
-# Duomenų bazė (ORM)
 db = SQLAlchemy()
-
-# Autentifikacija/sesijos
 login_manager = LoginManager()
-
-# El. paštas
 mail = Mail()
-
-# CSRF apsauga visoms POST formoms (integruojasi su Flask-WTF)
 csrf = CSRFProtect()
-
-# Migracijų sistema (Alembic) – inicijuosite su app pagrindiniame faile
 migrate = Migrate()
-
-# Cache (naudokite SimpleCache arba, jei reikia, Redis ar Memcached)
 cache = Cache()
+admin = Admin(name='admin_panel', endpoint='admin_panel')  # <-- Svarbiausia vieta!
 
-# Admino panelė
-admin = Admin()
-
-# (Papildomai, jei naudosite Flask-Uploads)
 try:
-    from flask_uploads import UploadSet, IMAGES, configure_uploads, patch_request_class
+    from flask_uploads import UploadSet, IMAGES
     photos = UploadSet('photos', IMAGES)
 except ImportError:
-    photos = None 
+    photos = None

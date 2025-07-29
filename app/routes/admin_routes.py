@@ -5,10 +5,11 @@ from app.services.product_service import (
     get_all_products, get_product_by_id, create_product,
     update_product, deactivate_product, update_product_quantity, delete_product
 )
+from app.services.user_service import get_all_users
 
-admin_bp = Blueprint('custom_admin', __name__, url_prefix='/admin')
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-# Universalus admin dekoratorius – tik adminams
+# --- ADMIN ONLY DECORATOR ---
 def admin_required(func):
     from functools import wraps
     @wraps(func)
@@ -19,7 +20,33 @@ def admin_required(func):
         return func(*args, **kwargs)
     return decorated_view
 
-# Visų prekių sąrašas (admino valdymas)
+# --- DASHBOARD ---
+@admin_bp.route('/dashboard')
+@login_required
+@admin_required
+def dashboard():
+    # Realius skaičius gauk iš duombazės
+    stats = {
+        "users_count": len(get_all_users()),
+        "products_count": len(get_all_products()),
+        "orders_count": 0,           # TODO: pridėti užsakymų count
+        "discounts_count": 0,        # TODO: pridėti nuolaidų count
+        "today_sales_count": 0,      # TODO: parduota šiandien
+        "month_revenue": 0,          # TODO: mėnesio apyvarta €
+        "top_product_name": "-",     # TODO: populiariausia prekė
+        "top_client_name": "-"       # TODO: geriausias klientas
+    }
+    return render_template('admin/dashboard.html', stats=stats)
+
+# --- USERS ---
+@admin_bp.route('/users')
+@login_required
+@admin_required
+def user_list():
+    users = get_all_users()
+    return render_template('admin/user_list.html', users=users)
+
+# --- PRODUCTS LIST ---
 @admin_bp.route('/products')
 @login_required
 @admin_required
@@ -27,7 +54,7 @@ def product_list():
     products = get_all_products()
     return render_template('admin/product_list.html', products=products)
 
-# Naujos prekės pridėjimas
+# --- ADD PRODUCT ---
 @admin_bp.route('/products/add', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -42,7 +69,7 @@ def add_product():
         flash('Klaida pridedant prekę.', 'danger')
     return render_template('admin/add_product.html', form=form)
 
-# Esamos prekės redagavimas
+# --- EDIT PRODUCT ---
 @admin_bp.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -61,7 +88,7 @@ def edit_product(product_id):
         flash('Klaida atnaujinant prekę.', 'danger')
     return render_template('admin/edit_product.html', form=form, product=product)
 
-# Prekės deaktyvavimas (minkštas išėmimas iš prekybos)
+# --- DEACTIVATE PRODUCT (SOFT DELETE) ---
 @admin_bp.route('/products/deactivate/<int:product_id>', methods=['POST'])
 @login_required
 @admin_required
@@ -75,7 +102,7 @@ def deactivate_product_route(product_id):
         flash('Klaida išimant prekę.', 'danger')
     return redirect(url_for('admin.product_list'))
 
-# Kiekio atnaujinimas (formoje quantity laukelis)
+# --- UPDATE QUANTITY ---
 @admin_bp.route('/products/update_quantity/<int:product_id>', methods=['POST'])
 @login_required
 @admin_required
@@ -96,7 +123,7 @@ def update_product_quantity_route(product_id):
             flash('Neteisingas kiekis.', 'danger')
     return redirect(url_for('admin.product_list'))
 
-# Produktas trinamas (hard delete)
+# --- DELETE PRODUCT (HARD DELETE) ---
 @admin_bp.route('/products/delete/<int:product_id>', methods=['POST'])
 @login_required
 @admin_required
@@ -110,11 +137,26 @@ def delete_product_route(product_id):
         flash('Klaida trinant prekę.', 'danger')
     return redirect(url_for('admin.product_list'))
 
-# (Pavyzdys) Vartotojų sąrašas (jei reikia admino valdymui)
-# from app.services.user_service import get_all_users, delete_user
-# @admin_bp.route('/users')
-# @login_required
-# @admin_required
-# def user_list():
-#     users = get_all_users()
-#     return render_template('admin/user_list.html', users=users)
+# --- PRODUCTS STATS PAGE (EXAMPLE) ---
+@admin_bp.route('/products/stats')
+@login_required
+@admin_required
+def product_stats():
+    # TODO: Implement real statistics
+    return render_template('admin/product_stats.html')
+
+# --- ORDERS PAGE (EXAMPLE) ---
+@admin_bp.route('/orders')
+@login_required
+@admin_required
+def orders():
+    # TODO: Implement real order list
+    return render_template('admin/orders.html')
+
+# --- DISCOUNTS PAGE (EXAMPLE) ---
+@admin_bp.route('/discounts')
+@login_required
+@admin_required
+def discounts():
+    # TODO: Implement real discounts management
+    return render_template('admin/discounts.html')

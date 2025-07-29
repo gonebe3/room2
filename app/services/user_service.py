@@ -1,8 +1,10 @@
 from app.models.user import User
-from app.models.order import Order  # jei norėsi užsakymų funkcionalumo
+from app.models.order import Order
 from app.utils.extensions import db
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+
+# --- CRUD ir paieškos ---
 
 def get_user_by_id(user_id: int):
     """Gauti vartotoją pagal ID."""
@@ -30,14 +32,29 @@ def get_user_by_email(email: str):
     except SQLAlchemyError:
         return None
 
+def get_all_users():
+    """Gražina visų vartotojų sąrašą (be ištrintų)."""
+    try:
+        with db.session() as session:
+            stmt = select(User).where(User.is_deleted == False)
+            return session.execute(stmt).scalars().all()
+    except SQLAlchemyError:
+        return []
+
+# --- Autentifikacija ir registracija ---
+
 def authenticate_user(username: str, password: str):
-    """Patikrinti vartotojo vardą ir slaptažodį."""
+    """Patikrina vartotojo vardą ir slaptažodį."""
     user = get_user_by_username(username)
-    if user and user.check_password(password):
+    if user and user.check_password(password) and not user.is_deleted:
         return user
     return None
 
 def register_new_user(form):
+    """
+    Registruoja naują vartotoją pagal WTForm objektą.
+    Grąžina (user, error) – jei error None, registracija sėkminga.
+    """
     try:
         if get_user_by_username(form.username.data):
             return None, "Toks vartotojo vardas jau egzistuoja."
@@ -46,22 +63,29 @@ def register_new_user(form):
         user = User(
             username=form.username.data,
             email=form.email.data,
+            # Jei reikia galima čia priskirti ir kitas default savybes (pvz., role="user")
         )
         user.set_password(form.password.data)
         with db.session() as session:
             session.add(user)
             session.commit()
             return user, None
+    except IntegrityError as e:
+        db.session.rollback()
+        return None, "Unikalumo klaida – vartotojas ar el. paštas jau naudojamas."
     except SQLAlchemyError as e:
-        print(f"Registracijos klaida: {e}")  # <-- šita eilutė
+        db.session.rollback()
+        print(f"Registracijos klaida: {e}")
         return None, "Įvyko klaida registruojant vartotoją."
+
+# --- Kiti naudotojo veiksmai ---
 
 def update_user_balance(user_id: int, amount: float) -> bool:
     """Atnaujina vartotojo balansą (prideda amount)."""
     try:
         with db.session() as session:
             user = session.get(User, user_id)
-            if user:
+            if user and not user.is_deleted:
                 user.balance += amount
                 session.commit()
                 return True
@@ -74,7 +98,7 @@ def update_user_profile(user_id: int, data: dict) -> bool:
     try:
         with db.session() as session:
             user = session.get(User, user_id)
-            if not user:
+            if not user or user.is_deleted:
                 return False
             for key, value in data.items():
                 if hasattr(user, key):
@@ -85,11 +109,11 @@ def update_user_profile(user_id: int, data: dict) -> bool:
         return False
 
 def delete_user(user_id: int) -> bool:
-    """Atlieka soft delete – pažymi vartotoją kaip ištrintą."""
+    """Soft delete – pažymi vartotoją kaip ištrintą."""
     try:
         with db.session() as session:
             user = session.get(User, user_id)
-            if user:
+            if user and not user.is_deleted:
                 user.is_deleted = True
                 session.commit()
                 return True
