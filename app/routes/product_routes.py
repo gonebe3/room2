@@ -44,6 +44,8 @@ def product_detail(product_id):
         form=form
     )
 
+
+
 @product_bp.route('/', methods=["GET"])
 def product_list():
     form = SearchForm(request.args, meta={'csrf': False})
@@ -61,3 +63,4 @@ def product_list():
         reviews_count=reviews_count,
         forms=forms
     )
+
