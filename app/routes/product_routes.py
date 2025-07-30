@@ -11,6 +11,8 @@ from app.services.review_service import (
     get_reviews_by_product,
 )
 from app.forms.cart_form import CartAddForm
+from app.forms.search_form import SearchForm
+from app.services.search_service import search_products
 
 product_bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -44,12 +46,16 @@ def product_detail(product_id):
 
 @product_bp.route('/', methods=["GET"])
 def product_list():
-    products = get_all_products()
+    form = SearchForm(request.args, meta={'csrf': False})
+    q = request.args.get('q', '')
+    sort_by = request.args.get('sort_by', 'default')
+    products = search_products(q, sort_by)
     avg_ratings = {p.id: get_average_rating(p.id) or 0 for p in products}
     reviews_count = {p.id: get_review_count(p.id) or 0 for p in products}
     forms = {p.id: CartAddForm(product_id=p.id, quantity=1) for p in products}
     return render_template(
         'product/product_list.html',
+        form=form,
         products=products,
         avg_ratings=avg_ratings,
         reviews_count=reviews_count,
