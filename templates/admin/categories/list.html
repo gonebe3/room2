@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}Kategorijų sąrašas{% endblock %}
+
+{% block content %}
+<div class="container admin-categories-container">
+    <h2 class="admin-categories-title">Kategorijų sąrašas</h2>
+
+    <a href="{{ url_for('admin.add_category') }}" class="btn btn-admin-add">+ Pridėti kategoriją</a>
+
+    <div class="admin-categories-table-wrap">
+        <table class="admin-categories-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Pavadinimas</th>
+                    <th>Aprašymas</th>
+                    <th>Produktų kiekis</th>
+                    <th>Veiksmai</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>{{ category.id }}</td>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.description|truncate(60) }}</td>
+                    <td>{{ category.products|length if category.products else 0 }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_category', cat_id=category.id) }}" class="btn btn-admin">Redaguoti</a>
+                        <form method="POST" action="{{ url_for('admin.delete_category_route', cat_id=category.id) }}" style="display:inline;" onsubmit="return confirm('Ar tikrai norite ištrinti šią kategoriją?');">
+                            <button type="submit" class="btn btn-danger">Ištrinti</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="admin-categories-empty">Nėra kategorijų.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

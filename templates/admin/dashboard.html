@@ -6,6 +6,7 @@
     <h2 class="admin-dashboard-title">Valdymo skydas</h2>
 
     <div class="admin-dashboard-cards">
+        <!-- Naudotojai -->
         <div class="admin-card">
             <div class="admin-card-icon admin-card-users">
                 <img src="{{ url_for('static', filename='images/icons/user.svg') }}" alt="Naudotojai">
@@ -14,6 +15,16 @@
             <div class="admin-card-value">{{ stats.users_count }}</div>
             <a href="{{ url_for('admin.user_list') }}" class="btn btn-admin">Redaguoti</a>
         </div>
+        <!-- Kategorijos -->
+        <div class="admin-card">
+            <div class="admin-card-icon admin-card-categories">
+                <img src="{{ url_for('static', filename='images/icons/category.svg') }}" alt="Kategorijos">
+            </div>
+            <div class="admin-card-title">Kategorijos</div>
+            <div class="admin-card-value">{{ stats.categories_count if stats.categories_count is defined else '-' }}</div>
+            <a href="{{ url_for('admin.category_list') }}" class="btn btn-admin">Redaguoti</a>
+        </div>
+        <!-- Prekės -->
         <div class="admin-card">
             <div class="admin-card-icon admin-card-products">
                 <img src="{{ url_for('static', filename='images/icons/shopping-bag.svg') }}" alt="Prekės">
@@ -22,6 +33,7 @@
             <div class="admin-card-value">{{ stats.products_count }}</div>
             <a href="{{ url_for('admin.product_list') }}" class="btn btn-admin">Redaguoti</a>
         </div>
+        <!-- Užsakymai -->
         <div class="admin-card">
             <div class="admin-card-icon admin-card-orders">
                 <img src="{{ url_for('static', filename='images/icons/box.svg') }}" alt="Užsakymai">
@@ -30,6 +42,7 @@
             <div class="admin-card-value">{{ stats.orders_count }}</div>
             <a href="{{ url_for('admin.orders') }}" class="btn btn-admin">Redaguoti</a>
         </div>
+        <!-- Nuolaidos -->
         <div class="admin-card">
             <div class="admin-card-icon admin-card-discounts">
                 <img src="{{ url_for('static', filename='images/icons/discount.svg') }}" alt="Nuolaidos">

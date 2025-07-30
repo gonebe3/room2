@@ -53,6 +53,9 @@
                         {% endif %}
                     </td>
                     <td>
+                        <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-link btn-small">
+                            Peržiūrėti
+                        </a>
                         <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-link btn-small">
                             Redaguoti
                         </a>

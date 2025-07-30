@@ -11,7 +11,11 @@ class Product(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=0)
     image_filename = db.Column(db.String(255), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
-    
+
+    # --- Nauja: Kategorija ---
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+    category = db.relationship("Category", back_populates="products")
+
     created_at = db.Column(
         db.DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

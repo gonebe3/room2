@@ -58,3 +58,12 @@ def get_reviews_by_user(user_id: int):
         return Review.query.filter_by(user_id=user_id, is_deleted=False).order_by(Review.created_at.desc()).all()
     except SQLAlchemyError:
         return []
+    
+
+def get_average_rating(product_id):
+    avg = db.session.query(db.func.avg(Review.rating)).filter(Review.product_id == product_id).scalar()
+    return round(avg, 2) if avg else None
+
+def get_review_count(product_id):
+    count = db.session.query(db.func.count(Review.id)).filter(Review.product_id == product_id).scalar()
+    return count or 0

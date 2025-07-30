@@ -15,6 +15,7 @@ import app.models.order
 import app.models.review
 import app.models.discount
 import app.models.order_item
+import app.models.category
 # --- Modelių importų BLOKAS pabaiga ---
 
 def create_app():
