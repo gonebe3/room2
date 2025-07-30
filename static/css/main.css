@@ -1956,3 +1956,57 @@ main {
 .error-btn {
     margin-top: 0.6rem;
 }
+
+/* BENDRAS ADMIN LENTELES STILIUS */
+.admin-users-table,
+.admin-products-table,
+.admin-categories-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.06);
+    margin-top: 24px;
+}
+
+.admin-users-table th,
+.admin-products-table th,
+.admin-categories-table th {
+    background: #f6f6f9;
+    color: #ff8200;
+    font-weight: 700;
+    padding: 16px 14px;
+    text-align: left;
+}
+
+.admin-users-table td,
+.admin-products-table td,
+.admin-categories-table td {
+    padding: 14px 14px;
+    border-bottom: 1px solid #f0f0f3;
+    color: #1e1b18;
+}
+
+.admin-users-table tr:last-child td,
+.admin-products-table tr:last-child td,
+.admin-categories-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-users-table tbody tr:hover,
+.admin-products-table tbody tr:hover,
+.admin-categories-table tbody tr:hover {
+    background: #f5f6fa;
+    transition: background 0.1s;
+}
+
+.admin-users-empty,
+.admin-products-empty,
+.admin-categories-empty {
+    text-align: center;
+    color: #bdbdbd;
+    font-size: 1.1em;
+    padding: 20px 0;
+}

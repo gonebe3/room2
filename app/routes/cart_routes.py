@@ -75,3 +75,17 @@ def clear_user_cart():
     clear_cart(current_user.id)
     flash('Krepšelis išvalytas.', 'info')
     return redirect(url_for('cart.view_cart'))
+
+@cart_bp.route('/add/<int:product_id>', methods=['POST'], endpoint='add_to_cart')
+@login_required
+def add_to_cart_route(product_id):
+    form = CartAddForm()
+    if form.validate_on_submit():
+        success = add_to_cart(current_user.id, product_id, form.quantity.data)
+        if success:
+            flash("Prekė pridėta į krepšelį.", "success")
+        else:
+            flash("Nepavyko pridėti prekės į krepšelį.", "danger")
+    else:
+        flash("Neteisingi duomenys.", "danger")
+    return redirect(url_for('cart.view_cart'))

@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block title %}Prekės informacija{% endblock %}
+
+{% block content %}
+<div class="container admin-products-detail-container">
+    <h2 class="admin-products-title">Prekės informacija</h2>
+
+    <div class="admin-product-detail">
+        <dl>
+            <dt>ID:</dt>
+            <dd>{{ product.id }}</dd>
+
+            <dt>Pavadinimas:</dt>
+            <dd>{{ product.name }}</dd>
+
+            <dt>Kategorija:</dt>
+            <dd>{{ product.category.name if product.category else '-' }}</dd>
+
+            <dt>Aprašymas:</dt>
+            <dd>{{ product.description or '-' }}</dd>
+
+            <dt>Kaina (€):</dt>
+            <dd>{{ product.price|round(2) }}</dd>
+
+            <dt>Kiekis sandėlyje:</dt>
+            <dd>{{ product.quantity }}</dd>
+
+            <dt>Aktyvus:</dt>
+            <dd>
+                {% if product.is_active %}
+                    <span class="status-active">Taip</span>
+                {% else %}
+                    <span class="status-inactive">Ne</span>
+                {% endif %}
+            </dd>
+
+            <dt>Sukurta:</dt>
+            <dd>{{ product.created_at.strftime('%Y-%m-%d %H:%M') if product.created_at else '-' }}</dd>
+
+            <dt>Atnaujinta:</dt>
+            <dd>{{ product.updated_at.strftime('%Y-%m-%d %H:%M') if product.updated_at else '-' }}</dd>
+        </dl>
+
+        {% if product.image_filename %}
+            <div class="admin-product-detail-image">
+                <img src="{{ url_for('static', filename='images/products/' ~ product.image_filename) }}"
+                     alt="Prekės nuotrauka"
+                     style="max-width: 180px; max-height: 180px;">
+            </div>
+        {% endif %}
+
+        <div class="admin-product-detail-actions">
+            <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-admin">Redaguoti</a>
+            <a href="{{ url_for('admin.product_list') }}" class="btn btn-secondary">Grįžti į sąrašą</a>
+            <form method="POST" action="{{ url_for('admin.delete_product_route', product_id=product.id) }}" style="display:inline;" onsubmit="return confirm('Ar tikrai norite ištrinti šią prekę?');">
+                <button type="submit" class="btn btn-danger">Ištrinti</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
