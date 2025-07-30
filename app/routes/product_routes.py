@@ -11,6 +11,8 @@ from app.services.review_service import (
     get_reviews_by_product,
 )
 from app.forms.cart_form import CartAddForm
+from app.forms.search_form import SearchForm
+from app.services.search_service import search_products
 
 product_bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -55,3 +57,11 @@ def product_list():
         reviews_count=reviews_count,
         forms=forms
     )
+
+
+@product_bp.route('/product')
+def product_list():
+    form = SearchForm(request.args,meta={'csrf': False})
+    q = request.args.get('q', '')
+    sort_by = request.args.get('sort_by', 'default')
+    return render_template('product/product_list.html', form=form, products=products)
