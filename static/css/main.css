@@ -384,17 +384,30 @@ main {
 .form-group input[type="text"],
 .form-group input[type="password"] {
     width: 100%;
-    padding: 0.6rem 0.6rem;
-    border-radius: 1.2rem;
-    border: 1px solid var(--color-bg-dark);
-    font-size: 1.03rem;
-    color: var(--color-text);
-    background: var(--color-white);
+    padding: 0.72rem 1.1rem;
+    border-radius: 0.72rem;
+    border: 1.2px solid #ccd2db;
+    font-size: 1.08rem;
+    color: var(--color-text, #232946);
+    background: #fcfcff;
+    box-shadow: 0 1px 5px rgba(60,60,90,0.04);
     outline: none;
-    transition: border 0.2s;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
+    border: 1.5px solid var(--color-primary, #ff8c42);
+    background: #fff;
+}
+.form-group input[type="text"].is-invalid,
+.form-group input[type="password"].is-invalid {
+    border: 1.5px solid var(--color-error, #e74c3c) !important;
+    background: #fff7ed;
+}
+
 .form-group input:focus {
-    border: 1.5px solid var(--color-white);
+    border: 1.5px solid var(--color-primary, #7241D7);  /* violetinis focus */
     background: #fff;
 }
 .form-options {
@@ -585,18 +598,22 @@ main {
     padding: 2.3rem 0 3rem 0;
 }
 .product-detail-main {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(44, 62, 80, 0.11);
+    padding: 2rem 1.5rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 2.6rem;
-    margin-bottom: 2.7rem;
+    gap: 2.5rem;
 }
 .product-detail-image-block {
-    flex: 1 1 340px;
+    flex: 0 0 320px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    position: relative;
-    min-width: 260px;
+    background: #f4f3fd; /* švelniai violetinis, bet labai šviesus */
+    border-radius: 18px;
+    padding: 1.5rem 1rem;
+    box-shadow: 0 1px 8px rgba(44,62,80,0.05);
 }
 .product-detail-image {
     max-width: 340px;
@@ -607,11 +624,8 @@ main {
     box-shadow: 0 2px 14px rgba(0,0,0,0.09);
 }
 .product-detail-info {
-    flex: 2 1 410px;
-    min-width: 260px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 .product-detail-title {
     font-size: 2rem;
@@ -678,15 +692,11 @@ main {
     font-size: 1rem;
     margin-right: 0.5rem;
 }
-.product-detail-reviews {
-    margin-top: 2rem;
-}
-.review-card {
-    background: #f9f9fa;
-    border-radius: 1.1rem;
-    margin-bottom: 1.3rem;
-    padding: 1.05rem 1.1rem;
-    box-shadow: 0 1px 7px rgba(0,0,0,0.06);
+.product-detail-reviews .review-card {
+    background: #faf7ff;
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 1px 6px rgba(80,60,180,0.07);
 }
 .review-header {
     display: flex;
@@ -1645,18 +1655,20 @@ main {
 }
 .balance-form input[type="number"] {
     width: 100%;
-    padding: 0.6rem 1.05rem;
-    border-radius: 1.2rem;
-    border: 1px solid var(--color-gray);
-    font-size: 1.03rem;
-    color: var(--color-text);
-    background: var(--color-white);
+    padding: 0.72rem 1.1rem;            /* kaip ir login laukui */
+    border-radius: 0.72rem;             /* kaip ir kitur */
+    border: 1.2px solid #ccd2db;        /* ta pati neutraliai pilka */
+    font-size: 1.08rem;
+    color: var(--color-text, #232946);
+    background: #fcfcff;
+    box-shadow: 0 1px 5px rgba(60,60,90,0.04);
     outline: none;
-    transition: border 0.2s;
     margin-bottom: 1.1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
-.balance-form input:focus {
-    border: 1.5px solid var(--color-primary);
+.balance-form input[type="number"]:focus {
+    border: 1.5px solid var(--color-primary, #ff8c42);
     background: #fff;
 }
 .btn-block {
