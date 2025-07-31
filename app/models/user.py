@@ -14,10 +14,12 @@ class User(db.Model, UserMixin):
     balance = db.Column(db.Numeric(10, 2), default=0.00)
     role = db.Column(db.String(16), default='user', nullable=False)
 
+    # Email patvirtinimui:
     email_confirmed = db.Column(db.Boolean, default=False, nullable=False)
     email_confirmed_at = db.Column(db.DateTime, nullable=True)
     email_confirmation_token = db.Column(db.String(128), nullable=True)
 
+    # Audito laukai:
     created_on  = db.Column(db.DateTime, server_default=func.now(), nullable=False)
     created_by  = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     modified_on = db.Column(db.DateTime, server_default=func.now(), server_onupdate=func.now(), nullable=False)
@@ -28,6 +30,15 @@ class User(db.Model, UserMixin):
     login_attempts = db.Column(db.Integer, default=0)
     locked_until   = db.Column(db.DateTime, nullable=True)
 
+    # --------- RYŠIAI ---------
+    # Svarbu: Privaloma nurodyti foreign_keys, jei modelyje yra daugiau nei vienas ryšys į tą pačią lentelę!
+
+    cart_items = db.relationship(
+        "Cart",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        foreign_keys="[Cart.user_id]"
+    )
     reviews = db.relationship(
         "Review",
         back_populates="user",
@@ -40,6 +51,9 @@ class User(db.Model, UserMixin):
         cascade="all, delete-orphan",
         foreign_keys="[Order.user_id]"
     )
+    # Jei reikia – pridėkite ir sekimo (audit) laukų relationship'us:
+    # created_cart_items = db.relationship("Cart", foreign_keys="[Cart.created_by]")
+    # modified_cart_items = db.relationship("Cart", foreign_keys="[Cart.modified_by]")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -49,16 +63,8 @@ class User(db.Model, UserMixin):
 
     @property
     def is_admin(self):
+        # Galima išplėsti logiką vėliau, jei pridėsite admin lygį
         return getattr(self, 'role', None) == 'admin'
-
-from app.models.cart import Cart
-
-User.cart_items = db.relationship(
-    "Cart",
-    back_populates="user",
-    cascade="all, delete-orphan",
-    foreign_keys=[Cart.user_id]
-)
 
 @login_manager.user_loader
 def load_user(user_id):
