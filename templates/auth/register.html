@@ -44,7 +44,7 @@
             <div class="form-options">
                 <label>
                     <input type="checkbox" name="terms" required>
-                    Sutinku su <a href="#" class="form-link" target="_blank">naudojimo taisyklėmis</a>
+                    <a href="{{ url_for('main.terms') }}">Sutinku su naudojimo taisyklėmis</a>
                 </label>
             </div>
             {{ form.submit(class_="btn btn-block") }}

@@ -78,13 +78,6 @@
                     </li>
                 {% endif %}
             </ul>
-            <!-- PAIEŠKOS FORMA -->
-            <form action="{{ url_for('product.product_list') }}" method="get" class="search-form">
-                <input type="text" name="q" placeholder="Ieškoti prekių parduotuvėje" value="{{ request.args.get('q', '') }}">
-                <button type="submit">
-                    <img src="{{ url_for('static', filename='images/icons/search.svg') }}" class="icon icon-search" alt="Ieškoti">
-                </button>
-            </form>
         </nav>
     </header>
 
@@ -111,7 +104,7 @@
         <div class="footer-content">
             <div>
                 <img src="{{ url_for('static', filename='images/prinona_logo.png') }}" class="footer-logo" alt="Prinona">
-                <strong>Prinona</strong> &copy; {{ now.year }}
+                <strong></strong> &copy; {{ now.year }}
             </div>
             <div class="footer-links">
                 <a href="{{ url_for('main.contacts') }}">
