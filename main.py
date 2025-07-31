@@ -17,7 +17,6 @@ import app.models.discount
 import app.models.order_item
 import app.models.category
 import app.models.login_attempt
-import app.models.login_attempt
 # --- Modelių importų BLOKAS pabaiga ---
 
 def create_app():
