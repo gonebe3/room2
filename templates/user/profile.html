@@ -5,7 +5,6 @@
 <div class="container profile-container">
     <h2 class="profile-title">Mano profilis</h2>
 
-    <!-- Profilio informacija -->
     <div class="profile-card">
         <div class="profile-header">
             <img src="{{ url_for('static', filename='images/icons/user.svg') }}" class="profile-avatar" alt="Vartotojas">
@@ -13,9 +12,6 @@
                 <div class="profile-username">{{ user.username }}</div>
                 <div class="profile-email">{{ user.email }}</div>
             </div>
-            <a href="{{ url_for('user.profile') }}" class="btn btn-secondary profile-edit-btn" title="Redaguoti profilį">
-                <span class="icon-edit"></span> Redaguoti
-            </a>
             <form method="POST" action="{{ url_for('auth.logout') }}">
                 <button type="submit" class="btn btn-logout profile-logout-btn" title="Atsijungti">
                     <span class="icon-logout"></span>
@@ -24,17 +20,15 @@
         </div>
     </div>
 
-    <!-- Balansas -->
     <div class="profile-balance-card">
         <div class="profile-balance-label">Balansas:</div>
         <div class="profile-balance-amount">{{ user.balance }} €</div>
         <a href="{{ url_for('user.balance') }}" class="btn btn-primary profile-balance-btn">Papildyti balansą</a>
     </div>
 
-    <!-- Užsakymų istorija -->
     <div class="profile-orders-section">
         <h3 class="profile-orders-title">Mano užsakymai</h3>
-        {% if orders %}
+        {% if orders and orders|length > 0 %}
         <table class="profile-orders-table">
             <thead>
                 <tr>
@@ -59,7 +53,7 @@
                         </span>
                     </td>
                     <td>
-                        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-link">Peržiūrėti</a>
+                        <a href="{{ url_for('order.order_detail', order_id=order.id) }}" class="btn btn-link">Peržiūrėti</a>
                     </td>
                 </tr>
                 {% endfor %}

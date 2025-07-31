@@ -25,7 +25,8 @@ class Cart(db.Model):
     )
     product = db.relationship(
         "Product",
-        back_populates="cart_items"
+        back_populates="cart_items",
+        lazy="selectin"
     )
     creator = db.relationship(
         "User",
