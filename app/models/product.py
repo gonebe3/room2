@@ -12,7 +12,6 @@ class Product(db.Model):
     image_filename = db.Column(db.String(255), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
 
-    # --- Nauja: Kategorija ---
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
     category = db.relationship("Category", back_populates="products")
 
@@ -28,26 +27,12 @@ class Product(db.Model):
         nullable=False
     )
 
-    # Santykis su Cart modeliu
     cart_items = db.relationship(
         "Cart",
         back_populates="product",
         cascade="all, delete-orphan"
     )
 
-    # Santykis su OrderItem modeliu
-    order_items = db.relationship(
-        "OrderItem",
-        back_populates="product",
-        cascade="all, delete-orphan"
-    )
-
-    # Santykis su Review modeliu
-    reviews = db.relationship(
-        "Review",
-        back_populates="product",
-        lazy=True
-    )
-
     def __repr__(self):
         return f"<Product {self.name}>"
+    
