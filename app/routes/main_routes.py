@@ -16,3 +16,7 @@ def contacts():
 @main_bp.route('/stores')
 def stores():
     return render_template('main/stores.html')
+
+@main_bp.route('/privacy-policy')
+def privacy_policy():
+    return render_template('main/privacy_policy.html')
