@@ -8,11 +8,11 @@ from app.services.product_service import (
 from app.services.review_service import (
     get_average_rating,
     get_review_count,
-    get_reviews_by_product,
 )
 from app.forms.cart_form import CartAddForm
 from app.forms.search_form import SearchForm
 from app.services.search_service import search_products
+from app.models.review import Review  # importuok modelį filtravimui
 
 product_bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -23,16 +23,15 @@ def product_detail(product_id):
         flash('Prekė nerasta.', 'danger')
         return redirect(url_for('product.product_list'))
 
-    # Atsiliepimai ir reitingai
+    # Naudojam relationship su soft-delete filtru
+    reviews = product.reviews.filter_by(is_deleted=False).order_by(Review.created_at.desc()).all()
     avg_rating = get_average_rating(product.id)
     reviews_count = get_review_count(product.id)
-    reviews = get_reviews_by_product(product.id)
 
     # Pridėti į krepšelį forma
     form = CartAddForm(product_id=product.id, quantity=1)
     if request.method == "POST" and form.validate_on_submit():
-        # Logika dėl pridėjimo į krepšelį galėtų būti čia, jei reikia.
-        # Dabar formą tiesiog perduodame į šabloną.
+        # (čia galima dėti krepšelio logiką, jei reikia)
         pass
 
     return render_template(

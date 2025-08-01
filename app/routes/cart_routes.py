@@ -1,12 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from app.forms.cart_form import CartAddForm, CartUpdateForm
+from app.forms.cart_form import CartAddForm, CartUpdateForm, CartClearForm
 from app.services.cart_service import (
     get_cart_items,
     add_to_cart,
     update_cart_item,
     remove_from_cart,
     clear_cart,
+    calculate_cart_totals,
 )
 from app.services.product_service import get_product_by_id
 from sqlalchemy.exc import SQLAlchemyError
@@ -18,21 +19,17 @@ cart_bp = Blueprint('cart', __name__, url_prefix='/cart')
 def view_cart():
     try:
         cart_items = get_cart_items(current_user.id)
-        total = sum(item.product.price * item.quantity for item in cart_items)
-        total_discount = sum(
-            (item.product.price - item.product.discount_price) * item.quantity
-            for item in cart_items
-            if getattr(item.product, "discount_price", None)
-        )
-        total_final = total - total_discount
+        total, total_discount, total_final = calculate_cart_totals(cart_items)
+        clear_form = CartClearForm()  # <-- Sukuriam formos instanciją
         return render_template(
             'cart/cart.html',
             cart_items=cart_items,
             total=total,
             total_discount=total_discount,
             total_final=total_final,
+            clear_form=clear_form,   # <-- Perduodam į template
         )
-    except SQLAlchemyError as e:
+    except SQLAlchemyError:
         flash('Įvyko klaida atvaizduojant krepšelį.', 'danger')
         return redirect(url_for('product.product_list'))
 
