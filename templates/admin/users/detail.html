@@ -2,53 +2,53 @@
 {% block title %}Naudotojo informacija{% endblock %}
 
 {% block content %}
-<div class="container admin-users-detail-container">
+<div class="admin-orders-detail-container">
     <h2 class="admin-users-title">Naudotojo informacija</h2>
 
-    <div class="admin-user-detail-card">
-        <table class="admin-user-detail-table">
+    <div class="admin-order-detail-card">
+        <table class="admin-order-detail-table">
             <tr>
-                <th>ID:</th>
+                <th class="th-label">ID:</th>
                 <td>{{ user.id }}</td>
             </tr>
             <tr>
-                <th>Vartotojo vardas:</th>
+                <th class="th-label">Vartotojo vardas:</th>
                 <td>{{ user.username }}</td>
             </tr>
             <tr>
-                <th>El. paštas:</th>
+                <th class="th-label">El. paštas:</th>
                 <td>{{ user.email }}</td>
             </tr>
             <tr>
-                <th>Rolė:</th>
+                <th class="th-label">Rolė:</th>
                 <td>{{ user.role }}</td>
             </tr>
             <tr>
-                <th>Balansas:</th>
+                <th class="th-label">Balansas:</th>
                 <td>{{ user.balance|round(2) }} €</td>
             </tr>
             <tr>
-                <th>Aktyvus:</th>
+                <th class="th-label">Aktyvus:</th>
                 <td>{% if user.is_active %}Taip{% else %}Ne{% endif %}</td>
             </tr>
             <tr>
-                <th>Patvirtintas el. paštas:</th>
+                <th class="th-label">Patvirtintas el. paštas:</th>
                 <td>{% if user.email_confirmed %}Taip{% else %}Ne{% endif %}</td>
             </tr>
             <tr>
-                <th>Sukurtas:</th>
+                <th class="th-label">Sukurtas:</th>
                 <td>{{ user.created_on.strftime('%Y-%m-%d %H:%M') if user.created_on else '-' }}</td>
             </tr>
             <tr>
-                <th>Atnaujintas:</th>
+                <th class="th-label">Atnaujintas:</th>
                 <td>{{ user.modified_on.strftime('%Y-%m-%d %H:%M') if user.modified_on else '-' }}</td>
             </tr>
             <tr>
-                <th>Prisijungimo bandymai:</th>
+                <th class="th-label">Prisijungimo bandymai:</th>
                 <td>{{ user.login_attempts }}</td>
             </tr>
             <tr>
-                <th>Laikinai užblokuotas iki:</th>
+                <th class="th-label">Laikinai užblokuotas iki:</th>
                 <td>
                     {% if user.locked_until %}
                         {{ user.locked_until.strftime('%Y-%m-%d %H:%M') }}
@@ -60,14 +60,13 @@
         </table>
     </div>
 
-    <div class="admin-user-detail-actions">
-        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-admin">Redaguoti</a>
-        <a href="{{ url_for('admin.user_list') }}" class="btn btn-secondary">Grįžti į sąrašą</a>
+    <div class="admin-order-detail-actions btn-row" style="margin-top:32px;">
+        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-action btn-main">Redaguoti</a>
+        <a href="{{ url_for('admin.user_list') }}" class="btn btn-action btn-secondary">Grįžti į sąrašą</a>
         <form method="POST" action="{{ url_for('admin.delete_user_route', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Ar tikrai norite ištrinti šį vartotoją?');">
-            <button type="submit" class="btn btn-danger">Ištrinti</button>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-action btn-danger">Ištrinti</button>
         </form>
     </div>
-
-    {# Galima pridėti papildomus blokelius: pvz. vartotojo užsakymų, atsiliepimų lentelę #}
 </div>
 {% endblock %}

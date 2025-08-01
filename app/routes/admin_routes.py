@@ -3,6 +3,18 @@ from flask_login import login_required, current_user
 from app.forms.product_form import ProductForm
 from app.forms.admin_user_form import AdminUserForm
 from app.forms.category_form import CategoryForm
+
+# PRIDĖTA – order CRUD forma (jei dar neturi, sukurk kaip admin_order_form.py)
+
+# PRIDĖTA – order servisai
+from app.services.order_service import (
+    get_all_orders, get_order_by_id, 
+    update_order_status, delete_order
+)
+
+from app.services.order_service import create_order as order_service_create_order
+
+
 from app.services.product_service import (
     get_all_products, get_product_by_id, create_product,
     update_product, deactivate_product, update_product_quantity, delete_product
@@ -38,7 +50,7 @@ def dashboard():
         "users_count": len(get_all_users()),
         "categories_count": len(get_all_categories()),  
         "products_count": len(get_all_products()),
-        "orders_count": 0,           # TODO: pridėti užsakymų count
+        "orders_count": len(get_all_orders()),
         "discounts_count": 0,        # TODO: pridėti nuolaidų count
         "today_sales_count": 0,      # TODO: parduota šiandien
         "month_revenue": 0,          # TODO: mėnesio apyvarta €
@@ -270,12 +282,76 @@ def delete_category_route(cat_id):
         flash('Klaida trinant kategoriją.', 'danger')
     return redirect(url_for('admin.category_list'))
 
+# --- ADMIN ORDERS CRUD (nauji, papildomi maršrutai) ---
+
+# --- ORDERS CRUD (profesionaliai, visi endpoint'ai suderinti) ---
+
 @admin_bp.route('/orders')
 @login_required
 @admin_required
+def order_list():
+    """Rodo visų užsakymų sąrašą"""
+    orders = get_all_orders()
+    return render_template('admin/orders/list.html', orders=orders)
+
+
+@admin_bp.route('/orders/<int:order_id>')
+@login_required
+@admin_required
+def order_detail(order_id):
+    """Rodo užsakymo detales"""
+    order = get_order_by_id(order_id)
+    if not order:
+        flash("Užsakymas nerastas.", "danger")
+        return redirect(url_for('admin.order_list'))
+    return render_template('admin/orders/detail.html', order=order)
+
+@admin_bp.route('/orders/edit/<int:order_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_order(order_id):
+    """Redaguoja užsakymą"""
+    order = get_order_by_id(order_id)
+    if not order:
+        flash("Užsakymas nerastas.", "danger")
+        return redirect(url_for('admin.order_list'))
+    form = AdminOrderForm(obj=order)
+    users = get_all_users()
+    form.user_id.choices = [(u.id, f"{u.username} ({u.email})") for u in users]
+    if form.validate_on_submit():
+        success = update_order_status(order_id, form.status.data, modified_by=current_user.id)
+        if success:
+            flash("Užsakymo statusas atnaujintas.", "success")
+            return redirect(url_for('admin.order_detail', order_id=order_id))
+        else:
+            flash("Klaida atnaujinant užsakymą.", "danger")
+    return render_template('admin/orders/edit.html', form=form, order=order)
+
+@admin_bp.route('/orders/delete/<int:order_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_order_route(order_id):
+    """Ištrina užsakymą"""
+    success = delete_order(order_id)
+    if success:
+        flash('Užsakymas ištrintas.', 'success')
+    else:
+        flash('Klaida trinant užsakymą.', 'danger')
+    return redirect(url_for('admin.order_list'))
+# --- SENAS (placeholder) orders route išsaugotas, jeigu reikės redirectų suderinimui ---
+
+@admin_bp.route('/orders')
 def orders():
-    # Vėliau galėsi papildyti užsakymų sąrašu ar CRUD
-    return render_template('admin/orders.html')
+    """
+    Rodo visų užsakymų sąrašą administratoriaus panelėje.
+    Užsakymai paimami per service sluoksnį.
+    """
+    try:
+        orders = get_all_orders()
+    except Exception as e:
+        orders = []
+        flash("Nepavyko užkrauti užsakymų iš duomenų bazės.", "danger")
+    return render_template('admin/orders/list.html', orders=orders)
 
 @admin_bp.route('/discounts')
 @login_required

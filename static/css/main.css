@@ -2028,3 +2028,111 @@ main {
     align-items: stretch;
     height: auto;
 }
+
+/* --- Admin Order Detail & Items (gradient, kortelės, mygtukai, label) --- */
+
+.admin-orders-detail-container {
+    background: linear-gradient(135deg, #3a3d9f 0%, #a162e8 100%);
+    border-radius: 1.7rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+    padding: 38px 28px 28px 28px;
+    max-width: 920px;
+    margin: 34px auto 0 auto;
+}
+
+.admin-order-detail-card,
+.admin-order-items {
+    background: #fff;
+    border-radius: 1.3rem;
+    box-shadow: 0 2px 12px 0 rgba(80,54,192,0.06);
+    padding: 32px 22px 20px 32px;
+    margin-bottom: 26px;
+}
+
+.admin-order-detail-table,
+.admin-order-items-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+    margin-bottom: 16px;
+}
+
+.admin-order-detail-table th,
+.admin-order-items-table th {
+    color: #ff8c42;
+    font-weight: 700;
+    text-align: left;
+    padding-right: 16px;
+    background: #faf6ff;
+    font-size: 1.01rem;
+}
+
+.admin-order-detail-table td,
+.admin-order-items-table td {
+    color: #1e1b18;
+    font-size: 1.02rem;
+    padding: 10px 10px;
+}
+
+.th-label {
+    color: #ff8c42;
+    font-weight: 700;
+    text-align: left;
+    padding-right: 16px;
+}
+
+.order-email {
+    color: #a162e8;
+    font-size: 0.98em;
+}
+
+.btn-row,
+.admin-order-detail-actions {
+    display: flex;
+    gap: 18px;
+    margin-top: 30px;
+}
+
+.btn-action {
+    font-size: 1.11em;
+    border-radius: 1.7rem;
+    font-weight: 700;
+    padding: 0.7rem 2.1rem;
+    box-shadow: 0 1px 4px rgba(80,54,192,0.06);
+    transition: background 0.18s;
+    margin-right: 0.15em;
+    border: none;
+}
+
+.btn-main {
+    background: linear-gradient(90deg, #ff741e 0%, #861e0b 100%);
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #984309;
+    color: #fff;
+}
+
+.btn-danger {
+    background: #ffe2e2;
+    color: #c0392b;
+}
+
+.btn-action:hover { filter: brightness(1.07); }
+
+@media (max-width: 900px) {
+    .admin-orders-detail-container {
+        padding: 18px 6px 16px 6px;
+        max-width: 98vw;
+    }
+    .admin-order-detail-card,
+    .admin-order-items {
+        padding: 14px 5px 11px 8px;
+    }
+    .btn-row, .admin-order-detail-actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+}
