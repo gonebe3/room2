@@ -45,6 +45,7 @@ class Product(db.Model):
     reviews = db.relationship(
         "Review",
         back_populates="product",
+        lazy='dynamic',
         cascade="all, delete-orphan"
     )
 
