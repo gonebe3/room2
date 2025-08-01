@@ -4,72 +4,33 @@
 {% block content %}
 <div class="container cart-container">
     <h2 class="cart-title">Jūsų krepšelis</h2>
-
     {% if cart_items and cart_items|length > 0 %}
-    <div class="cart-main">
-        <div class="cart-table-wrap">
-            <table class="cart-table">
-                <thead>
-                    <tr>
-                        <th>Prekė</th>
-                        <th>Kaina</th>
-                        <th>Kiekis</th>
-                        <th>Suma</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div class="cart-swiper-block">
+            <div class="swiper mySwiper cart-swiper">
+                <div class="swiper-wrapper">
                     {% for item in cart_items %}
-                    <tr>
-                        <td class="cart-product">
+                    <div class="swiper-slide">
+                        <div class="cart-swiper-card">
                             <img src="{{ url_for('static', filename='uploads/' ~ (item.product.image_filename or 'default.png')) }}"
-                                 alt="{{ item.product.name }}" class="cart-img">
-                            <div>
-                                <div class="cart-product-title">{{ item.product.name }}</div>
-                                {# Jei turi brand ar papildomą info, gali pridėti čia #}
-                                {% if item.product.discount %}
-                                    <div class="cart-product-discount">Nuolaida: -{{ item.product.discount }}%</div>
+                                 alt="{{ item.product.name }}" class="cart-swiper-img">
+                            <div class="cart-swiper-title">{{ item.product.name }}</div>
+                            <div class="cart-swiper-price">
+                                {% if item.product.discount_price %}
+                                    <span class="price-old">{{ item.product.price|round(2) }}€</span>
+                                    <span class="price-new">{{ item.product.discount_price|round(2) }}€</span>
+                                {% else %}
+                                    <span class="price-new">{{ item.product.price|round(2) }}€</span>
                                 {% endif %}
                             </div>
-                        </td>
-                        <td>
-                            {% if item.product.discount_price %}
-                                <span class="price-old">{{ item.product.price|round(2) }}€</span>
-                                <span class="price-new">{{ item.product.discount_price|round(2) }}€</span>
-                            {% else %}
-                                <span class="price-new">{{ item.product.price|round(2) }}€</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form method="POST" action="{{ url_for('cart.update_product_in_cart') }}" class="qty-form">
-                                {{ csrf_token() }}
-                                <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                                <input type="number" name="quantity" min="1" max="{{ item.product.quantity }}" value="{{ item.quantity }}" required>
-                                <button type="submit" class="qty-update-btn" title="Atnaujinti kiekį">
-                                    <span class="icon-refresh"></span>
-                                </button>
-                            </form>
-                        </td>
-                        <td>
-                            {% if item.product.discount_price %}
-                                <span class="cart-sum">{{ (item.product.discount_price * item.quantity)|round(2) }}€</span>
-                            {% else %}
-                                <span class="cart-sum">{{ (item.product.price * item.quantity)|round(2) }}€</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form method="POST" action="{{ url_for('cart.remove_product_from_cart') }}">
-                                {{ csrf_token() }}
-                                <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                                <button type="submit" class="btn btn-remove" title="Pašalinti iš krepšelio">
-                                    <span class="icon-trash"></span>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                            <div class="cart-swiper-qty">Kiekis: {{ item.quantity }}</div>
+                        </div>
+                    </div>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
+            </div>
         </div>
 
         <div class="cart-summary">
@@ -87,12 +48,11 @@
                 <span class="cart-final">{{ total_final|round(2) }}€</span>
             </div>
             <form method="POST" action="{{ url_for('cart.clear_user_cart') }}">
-                {{ csrf_token() }}
-                <button type="submit" class="btn btn-danger btn-block">Išvalyti krepšelį</button>
+                {{ clear_form.hidden_tag() }}
+                {{ clear_form.submit(class_="btn btn-danger btn-block") }}
             </form>
             <a href="{{ url_for('order.checkout') }}" class="btn btn-primary btn-block mt-3">Tęsti pirkimą</a>
         </div>
-    </div>
     {% else %}
         <div class="cart-empty">
             <img src="{{ url_for('static', filename='images/icons/cart.svg') }}" class="cart-empty-icon" alt="Krepšelis tuščias">

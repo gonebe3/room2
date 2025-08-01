@@ -22,7 +22,7 @@
 
     <div class="profile-balance-card">
         <div class="profile-balance-label">Balansas:</div>
-        <div class="profile-balance-amount">{{ user.balance }} €</div>
+        <div class="profile-balance-amount">{{ user.balance|round(2) }} €</div>
         <a href="{{ url_for('user.balance') }}" class="btn btn-primary profile-balance-btn">Papildyti balansą</a>
     </div>
 
@@ -34,9 +34,9 @@
                 <tr>
                     <th>Užsakymo Nr.</th>
                     <th>Data</th>
-                    <th>Kiekis</th>
+                    <th>Prekių kiekis</th>
                     <th>Suma</th>
-                    <th>Statusas</th>
+                    <th>Būsena</th>
                     <th></th>
                 </tr>
             </thead>
@@ -44,16 +44,33 @@
                 {% for order in orders %}
                 <tr>
                     <td>#{{ order.id }}</td>
-                    <td>{{ order.date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ order.total_items }}</td>
-                    <td>{{ order.total_price }} €</td>
+                    <td>
+                        {% if order.created_on %}
+                            {{ order.created_on.strftime('%Y-%m-%d') }}
+                        {% elif order.created_at %}
+                            {{ order.created_at.strftime('%Y-%m-%d') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {# Jei yra property total_items – naudok, kitu atveju suskaičiuok čia, bet rekomenduoju backend! #}
+                        {{ order.total_items if order.total_items is defined else order.item_count if order.item_count is defined else order.order_items|length }}
+                    </td>
+                    <td>{{ order.total_amount|round(2) }} €</td>
                     <td>
                         <span class="order-status order-status-{{ order.status }}">
-                            {{ order.status|capitalize }}
+                            {% if order.status == 'pending' %}Laukia apmokėjimo
+                            {% elif order.status == 'paid' %}Apmokėtas
+                            {% elif order.status == 'shipped' %}Išsiųstas
+                            {% elif order.status == 'completed' %}Įvykdytas
+                            {% elif order.status == 'canceled' %}Atšauktas
+                            {% else %}{{ order.status|capitalize }}
+                            {% endif %}
                         </span>
                     </td>
                     <td>
-                        <a href="{{ url_for('order.order_detail', order_id=order.id) }}" class="btn btn-link">Peržiūrėti</a>
+                        <a href="{{ url_for('order.order_detail', order_id=order.id) }}" class="btn btn-link btn-xsmall">Peržiūrėti</a>
                     </td>
                 </tr>
                 {% endfor %}

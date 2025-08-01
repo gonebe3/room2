@@ -27,12 +27,26 @@ class Product(db.Model):
         nullable=False
     )
 
+    # Krepšelio prekės (CartItems)
     cart_items = db.relationship(
         "Cart",
         back_populates="product",
         cascade="all, delete-orphan"
     )
 
+    # Užsakymo prekės (OrderItems)
+    order_items = db.relationship(
+        "OrderItem",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
+
+    # Atsiliepimai
+    reviews = db.relationship(
+        "Review",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
+
     def __repr__(self):
         return f"<Product {self.name}>"
-    

@@ -1,5 +1,5 @@
 from app.utils.extensions import db
-from sqlalchemy import func, text
+from sqlalchemy import func
 
 class Order(db.Model):
     __tablename__ = "orders"
@@ -12,23 +12,22 @@ class Order(db.Model):
     notes = db.Column(db.String(255), nullable=True)
     discount_id = db.Column(db.Integer, db.ForeignKey("discount.id"), nullable=True)
 
-    # Tinkamas server_default – DĖMESIO: reikia TIKSLIAI taip, nes su MS SQL func.now() ne visada išverčia į GETDATE()
     created_on = db.Column(
         db.DateTime(timezone=True),
-        server_default=text('GETDATE()'),
+        server_default=func.now(),
         nullable=False
     )
     created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     modified_on = db.Column(
         db.DateTime(timezone=True),
-        server_default=text('GETDATE()'),
+        server_default=func.now(),
         onupdate=func.now(),
         nullable=False
     )
     modified_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
-    # Ryšiai
+    # Relationships
     user = db.relationship(
         "User",
         back_populates="orders",
@@ -37,9 +36,7 @@ class Order(db.Model):
     order_items = db.relationship(
         "OrderItem",
         back_populates="order",
-        cascade="all, delete-orphan",
-        foreign_keys="[OrderItem.order_id]",
-        lazy='joined'
+        cascade="all, delete-orphan"
     )
     discount = db.relationship(
         "Discount",

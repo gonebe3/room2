@@ -12,6 +12,7 @@ from app.services.order_service import (
 from app.services.cart_service import (
     get_cart_items,
     calculate_cart_totals,
+    clear_cart
 )
 
 order_bp = Blueprint('order', __name__, url_prefix='/orders')
@@ -47,31 +48,28 @@ def order_detail(order_id):
 @order_bp.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    # 1. Gauk krepšelio prekes
     cart_items = get_cart_items(current_user.id)
     if not cart_items:
         flash("Jūsų krepšelis tuščias.", "warning")
         return redirect(url_for('cart.view_cart'))
 
-    # 2. Suskaičiuok sumas su servisu
+    # Skaičiuojame sumas (jei pavadinai calculate_cart_totals, naudoji naują funkciją)
     total, total_discount, total_final = calculate_cart_totals(cart_items)
 
-    # 3. Užpildyk formos lauką bendra suma (read-only)
     form = OrderForm()
     form.total_price.data = total_final
 
     if form.validate_on_submit():
-        # KVIEČIAM SU TEISINGAIS ARGUMENTAIS
         order, error = create_order(
             user_id=current_user.id,
             cart_items=cart_items,
             total_amount=total_final,
             shipping_address=form.shipping_address.data,
-            # notes=form.notes.data,  # jei nori notes, papildyk formoje
             created_by=current_user.id,
-            # discount_id=...,        # jei taikoma nuolaida, paduok čia
+            # discount_id=...,  # jei yra nuolaidos
         )
         if order:
+            clear_cart(current_user.id)   # <--- Štai čia išvalom krepšelį
             flash("Užsakymas sukurtas!", "success")
             return redirect(url_for('order.user_orders'))
         else:
