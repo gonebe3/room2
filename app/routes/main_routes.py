@@ -41,3 +41,7 @@ def stores():
 @main_bp.route('/privacy-policy')
 def privacy_policy():
     return render_template('main/privacy_policy.html')
+
+@main_bp.route('/terms')
+def terms():
+    return render_template('main/terms.html')
