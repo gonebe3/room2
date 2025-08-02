@@ -40,7 +40,13 @@ class User(db.Model, UserMixin):
         cascade="all, delete-orphan",
         foreign_keys="[Order.user_id]"
     )
-
+    payment_attempts = db.relationship(
+    "PaymentAttempt",
+    back_populates="user",
+    cascade="all, delete-orphan",
+    foreign_keys="[PaymentAttempt.user_id]"
+    )
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 

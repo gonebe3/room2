@@ -1679,7 +1679,7 @@ main {
     margin-bottom: 1.7rem;
 }
 .balance-card {
-    max-width: 390px;
+    max-width: 600px;
     margin: 0 auto;
     background: var(--color-bg-light);
     border-radius: 1.5rem;
@@ -2240,4 +2240,13 @@ main {
         min-width: 90vw;
         max-width: 97vw;
     }
+}
+.stripe-card-element {
+    border: 1.1px solid #ccd2db;
+    border-radius: 0.7rem;
+    padding: 0.7rem 1.1rem;
+    background: #fff;
+    margin-bottom: 1rem;
+    font-size: 1.06rem;
+    box-shadow: 0 1px 5px rgba(60,60,90,0.04);
 }
