@@ -1,9 +1,10 @@
 from app.models.order import Order
 from app.models.order_item import OrderItem
+from app.models.user import User
+from app.models.product import Product
 from app.utils.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
-from app.models.user import User
 
 def get_all_orders():
     """Gražina VISUS užsakymus su OrderItem'ais (admin view, statistika)"""
@@ -48,12 +49,32 @@ def get_orders_by_user(user_id):
         print(f"Klaida gaunant vartotojo užsakymus: {e}")
         return []
 
-from app.models.user import User
-from app.models.order import Order
-from app.models.order_item import OrderItem
-from sqlalchemy.orm import joinedload
-from sqlalchemy.exc import SQLAlchemyError
-from app.utils.extensions import db
+# ======== NAUJOS PROFESIONALIOS PAGALBINĖS FUNKCIJOS ========
+
+def check_product_quantities(cart_items):
+    """Patikrina ar užtenka kiekvienos prekės sandėlyje"""
+    for item in cart_items:
+        product = db.session.get(Product, item.product_id)
+        if not product or not product.is_active:
+            return False, f"Prekė (ID: {item.product_id}) nerasta arba neaktyvi."
+        if product.quantity < item.quantity:
+            return False, f"Prekės '{product.name}' sandėlyje nepakanka. Turima: {product.quantity}, norima: {item.quantity}."
+    return True, None
+
+def deduct_product_quantities(cart_items):
+    """Nurašo prekių kiekius iš sandėlio (privalo būti patikrinta check_product_quantities)"""
+    for item in cart_items:
+        product = db.session.get(Product, item.product_id)
+        product.quantity -= item.quantity
+
+def deduct_user_balance(user, amount):
+    """Nurašo naudotojo balansą (tik jei pakanka)"""
+    if float(user.balance) < float(amount):
+        return False, "Nepakanka lėšų sąskaitoje."
+    user.balance = float(user.balance) - float(amount)
+    return True, None
+
+# ===========================================================
 
 def create_order(
     user_id,
@@ -65,24 +86,32 @@ def create_order(
     created_by=None
 ):
     """
-    Sukuria užsakymą su visomis prekėmis, nurašo balansą, grąžina (order, klaida)
+    Sukuria užsakymą su visomis prekėmis, nurašo balansą ir sandėlį, grąžina (order, klaida)
     """
     try:
         # 1. Patikrinam vartotoją
         user = db.session.get(User, user_id)
         if not user:
             return None, "Naudotojas nerastas."
-        if float(user.balance) < float(total_amount):
-            return None, "Nepakanka lėšų sąskaitoje."
 
-        # 2. Nurašom balansą
-        user.balance = float(user.balance) - float(total_amount)
+        # 2. Patikrinam prekių kiekius
+        ok, error = check_product_quantities(cart_items)
+        if not ok:
+            return None, error
 
-        # 3. Sukuriam užsakymą su status="paid" (nes balansas jau nurašytas)
+        # 3. Patikrinam ir nurašom balansą
+        ok, error = deduct_user_balance(user, total_amount)
+        if not ok:
+            return None, error
+
+        # 4. Nurašom kiekius sandėlyje
+        deduct_product_quantities(cart_items)
+
+        # 5. Sukuriam užsakymą su status="paid" (nes balansas jau nurašytas)
         order = Order(
             user_id=user_id,
             total_amount=total_amount,
-            status="paid",   # <- svarbiausia vieta!
+            status="paid",
             shipping_address=shipping_address,
             notes=notes,
             created_by=created_by,
@@ -91,7 +120,7 @@ def create_order(
         db.session.add(order)
         db.session.flush()  # Kad gautume order.id
 
-        # 4. Pridedam visas order prekes
+        # 6. Pridedam visas order prekes
         for item in cart_items:
             order_item = OrderItem(
                 order_id=order.id,
@@ -104,7 +133,7 @@ def create_order(
 
         db.session.commit()
 
-        # 5. Užkraunam orderį su order_items (jei reikia detaliam grąžinimui)
+        # 7. Užkraunam orderį su order_items (jei reikia detaliam grąžinimui)
         db.session.refresh(order)
         order = (
             Order.query
@@ -117,7 +146,6 @@ def create_order(
         db.session.rollback()
         print(f"Klaida kuriant užsakymą: {e}")
         return None, "Įvyko klaida kuriant užsakymą. Bandykite dar kartą."
-
 
 def update_order_status(order_id, new_status, modified_by=None):
     try:
