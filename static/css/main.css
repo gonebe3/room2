@@ -2241,12 +2241,226 @@ main {
         max-width: 97vw;
     }
 }
+/* ==============================================
+   BALANCE PAGE - STRIPE INTEGRATION STYLES
+   ============================================== */
+
+/* Stripe kortelės laukų konteineris */
+.card-fields-container {
+    margin-top: 1.5rem;
+}
+
+.card-fields-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+    font-weight: 500;
+    color: #232946;
+    font-size: 0.95rem;
+}
+
+.card-fields-container label:first-child {
+    margin-top: 0;
+}
+
+/* Stripe Elements stiliai */
 .stripe-card-element {
     border: 1.1px solid #ccd2db;
     border-radius: 0.7rem;
-    padding: 0.7rem 1.1rem;
+    padding: 0.8rem 1.1rem;
     background: #fff;
     margin-bottom: 1rem;
     font-size: 1.06rem;
     box-shadow: 0 1px 5px rgba(60,60,90,0.04);
+    min-height: 20px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+.stripe-card-element:hover {
+    border-color: #a0a8b5;
+}
+
+.stripe-card-element.StripeElement--focus {
+    border-color: #6772e5;
+    box-shadow: 0 1px 5px rgba(103, 114, 229, 0.15);
+}
+
+.stripe-card-element.StripeElement--invalid {
+    border-color: #e25950;
+    box-shadow: 0 1px 5px rgba(226, 89, 80, 0.1);
+}
+
+.stripe-card-element.StripeElement--complete {
+    border-color: #00d924;
+}
+
+/* Kortelės laukų eilė (MM/YY ir CVC) */
+.card-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.card-field-half {
+    flex: 1;
+}
+
+/* Klaidų rodymas */
+.form-error {
+    display: none;
+    color: #e25950;
+    background: #fdf2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.form-error.show {
+    display: block;
+}
+
+/* Submit mygtukas */
+.stripe-submit-btn {
+    margin-top: 1.5rem;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.stripe-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.stripe-submit-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Stripe informacijos sekcija - PATAISYTA SU STIPRESNIAIS SELEKTORIAIS */
+.balance-card .stripe-info-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.balance-card .stripe-logo-container {
+    flex-shrink: 0;
+}
+
+.balance-card .stripe-logo {
+    width: 42px;
+    height: 42px;
+    opacity: 0.8;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.balance-card .stripe-info-text {
+    flex: 1;
+}
+
+.balance-card .stripe-info-text p {
+    margin: 0 0 0.5rem 0 !important;
+    font-size: 0.9rem !important;
+    color: #334155 !important;
+    line-height: 1.4 !important;
+    font-weight: 500 !important;
+}
+
+.balance-card .stripe-info-text p:last-child {
+    margin-bottom: 0 !important;
+}
+
+.balance-card .test-card-info {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+}
+
+.balance-card .test-card-number {
+    font-family: 'Courier New', 'Monaco', monospace !important;
+    background: #ffffff !important;
+    padding: 0.2rem 0.4rem !important;
+    border-radius: 0.3rem !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
+    border: 1px solid #d1d5db !important;
+    font-size: 0.85rem !important;
+}
+
+/* Responsive dizainas */
+@media (max-width: 768px) {
+    .card-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .balance-card .stripe-info-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1.2rem;
+    }
+    
+    .balance-card .stripe-info-text {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-fields-container {
+        margin-top: 1rem;
+    }
+    
+    .stripe-card-element {
+        padding: 0.7rem 0.9rem;
+        font-size: 1rem;
+    }
+    
+    .balance-card .stripe-info-section {
+        margin-top: 1.5rem;
+        padding: 1rem;
+    }
+    
+    .balance-card .test-card-number {
+        display: block;
+        margin-top: 0.3rem;
+        text-align: center;
+    }
+}
+
+/* Loading būsenos */
+.stripe-submit-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.stripe-submit-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: stripe-button-spin 1s ease infinite;
+}
+
+@keyframes stripe-button-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* FORCE OVERRIDE - STRIPE INFO TEXT */
+.balance-card .stripe-info-text p,
+.balance-card .stripe-info-section p,
+.stripe-info-text p {
+    color: #1e293b !important;
+    font-weight: 500 !important;

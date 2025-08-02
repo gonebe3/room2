@@ -1,3 +1,4 @@
+
 {% extends "layout.html" %}
 {% block title %}Papildyti balansą{% endblock %}
 
@@ -12,29 +13,50 @@
 
         <form id="stripe-balance-form" class="balance-form"
               autocomplete="off" name="stripe-balance" spellcheck="false" autocorrect="off" autocapitalize="off">
+            
             <label for="balance-amount">Suma (€)</label>
             <input type="number" step="0.01" min="0.50" id="balance-amount" name="amount"
-                placeholder="Pvz., 10.00" required autofocus autocomplete="off">
+                   placeholder="Pvz., 10.00" required autofocus autocomplete="off">
 
-            <!-- Stripe kortelės laukas -->
-            <label for="card-element" style="margin-top: 1.2rem;">Banko kortelė</label>
-            <div id="card-element" class="stripe-card-element"
-                 style="padding: 0.45rem 0.8rem; border-radius: 0.75rem; border: 1.1px solid #ccd2db; margin-bottom: 1.1rem; background: #fcfcff;"
-                 autocomplete="off"></div>
+            <!-- Stripe kortelės laukai ATSKIRAI -->
+            <div class="card-fields-container">
+                
+                <label for="card-number-element">Kortelės numeris</label>
+                <div id="card-number-element" class="stripe-card-element"></div>
+                
+                <div class="card-row">
+                    <div class="card-field-half">
+                        <label for="card-expiry-element">MM / YY</label>
+                        <div id="card-expiry-element" class="stripe-card-element"></div>
+                    </div>
+                    <div class="card-field-half">
+                        <label for="card-cvc-element">CVC</label>
+                        <div id="card-cvc-element" class="stripe-card-element"></div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Stripe error/JS klaidų blokas -->
-            <div id="stripe-error" class="form-error"
-                 style="display:none; color:#c00; margin-bottom:0.7rem"></div>
+            <div id="stripe-error" class="form-error"></div>
 
-            <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.4rem;">Papildyti Stripe</button>
+            <button type="submit" class="btn btn-primary btn-block stripe-submit-btn">
+                Papildyti Stripe
+            </button>
         </form>
 
-        <div class="balance-pay-mock" style="margin-top: 1.3rem;">
-            <img src="{{ url_for('static', filename='images/icons/stripe.svg') }}"
-                 alt="Stripe" style="width:38px;height:38px;opacity:0.83;">
-            <div class="balance-pay-mock-note">
-                Mokėjimai vykdomi saugiu Stripe mokėjimo langeliu.<br>
-                Testui galite naudoti kortelę <b>4242 4242 4242 4242</b>.
+        <div class="stripe-info-section">
+            <div class="stripe-logo-container">
+                <img src="{{ url_for('static', filename='images/icons/stripe.svg') }}"
+                     alt="Stripe" class="stripe-logo">
+            </div>
+            <div class="stripe-info-text">
+                <p style="color: #1e293b !important; font-weight: 500 !important; margin: 0 0 0.5rem 0 !important;">
+                    Mokėjimai vykdomi saugiu Stripe mokėjimo langeliu.
+                </p>
+                <p style="color: #1e293b !important; font-weight: 600 !important; margin: 0 !important;">
+                    Testui galite naudoti kortelę: 
+                    <span style="font-family: 'Courier New', monospace !important; background: #ffffff !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; color: #1e293b !important; font-weight: 600 !important; border: 1px solid #d1d5db !important;">4242 4242 4242 4242</span>
+                </p>
             </div>
         </div>
     </div>
@@ -43,9 +65,12 @@
 <!-- Stripe publishable key į JS -->
 <script>
     window.STRIPE_KEY = "{{ stripe_publishable_key }}";
+    console.log("Stripe key loaded:", window.STRIPE_KEY ? "✓" : "✗");
 </script>
+
 <!-- Stripe.js -->
 <script src="https://js.stripe.com/v3/"></script>
-<!-- Pagrindinis tavo JS -->
+
+<!-- Pagrindinis JS -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}
