@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -36,6 +37,9 @@ class Config:
 
     # Galimi papildomi nustatymai
     ADMINS = [email.strip() for email in os.environ.get('ADMINS', '').split(',') if email.strip()]
+
+    # Kiek laiko useri prisimins
+    REMEMBER_COOKIE_DURATION = timedelta(days=30)
 
     STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
