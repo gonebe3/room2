@@ -22,7 +22,9 @@
 
     <div class="profile-balance-card">
         <div class="profile-balance-label">Balansas:</div>
-        <div class="profile-balance-amount">{{ user.balance|round(2) }} €</div>
+        <div class="profile-balance-amount">
+            {{ user.balance|default(0)|float|round(2) }} €
+        </div>
         <a href="{{ url_for('user.balance') }}" class="btn btn-primary profile-balance-btn">Papildyti balansą</a>
     </div>
 
@@ -57,7 +59,9 @@
                         {# Jei yra property total_items – naudok, kitu atveju suskaičiuok čia, bet rekomenduoju backend! #}
                         {{ order.total_items if order.total_items is defined else order.item_count if order.item_count is defined else order.order_items|length }}
                     </td>
-                    <td>{{ order.total_amount|round(2) }} €</td>
+                    <td>
+                        {{ order.total_amount|default(0)|float|round(2) }} €
+                    </td>
                     <td>
                         <span class="order-status order-status-{{ order.status }}">
                             {% if order.status == 'pending' %}Laukia apmokėjimo
