@@ -5,6 +5,8 @@ from app.models.product import Product
 from app.utils.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
+from app.services.review_service import get_reviews_by_user, get_user_review_for_product_and_order
+
 
 def get_all_orders():
     """Gražina VISUS užsakymus su OrderItem'ais (admin view, statistika)"""
@@ -47,6 +49,26 @@ def get_orders_by_user(user_id):
         return orders
     except SQLAlchemyError as e:
         print(f"Klaida gaunant vartotojo užsakymus: {e}")
+        return []
+    
+def get_orders_by_user_with_review_flags(user_id):
+    """
+    Grąžina userio užsakymus su papildoma info apie kiekvieną užsakymo prekę:
+    ar vartotojas jau yra palikęs review už šį produktą.
+    """
+    try:
+        orders = get_orders_by_user(user_id)  # jau su order_items
+        reviews = get_reviews_by_user(user_id)
+        # Sukuriame set'ą greitam tikrinimui: (product_id)
+        reviewed_product_ids = set([r.product_id for r in reviews if not r.is_deleted])
+
+        for order in orders:
+            for item in order.order_items:
+                item.has_review = item.product_id in reviewed_product_ids
+
+        return orders
+    except Exception as e:
+        print(f"Klaida get_orders_by_user_with_review_flags: {e}")
         return []
 
 # ======== NAUJOS PROFESIONALIOS PAGALBINĖS FUNKCIJOS ========
@@ -190,3 +212,8 @@ def get_order_items(order_id):
 def get_orders_with_details():
     """Sugrąžina visus užsakymus su OrderItem'ais – naudoti dashboardui, statistikoms ir pan."""
     return get_all_orders()
+
+def enrich_order_items_with_review_status(order, user_id):
+    for item in order.order_items:
+        item.has_review = bool(get_user_review_for_product_and_order(user_id, item.product_id, order.id))
+    return order

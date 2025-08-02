@@ -5,7 +5,7 @@ from app.services.user_service import (
     get_user_orders,
     update_user_balance,
 )
-from app.services.order_service import get_orders_by_user
+from app.services.order_service import get_orders_by_user, get_orders_by_user_with_review_flags
 from app.services.review_service import get_reviews_by_user
 from app.forms.balance_form import BalanceForm
 
@@ -16,22 +16,25 @@ user_bp = Blueprint('user', __name__, url_prefix='/user')
 @login_required
 def profile():
     user = current_user
-    orders = get_orders_by_user(user.id)
-    orders_for_template = []
-    for order in orders:
-        orders_for_template.append({
+    # Gauname užsakymus su review flagais (kiekvienam order_item)
+    orders = get_orders_by_user_with_review_flags(user.id)
+    # Jei reikia – debug print:
+    print("DEBUG: orders", [
+        {
             "id": order.id,
-            "date": order.created_on,
-            "total_items": sum(item.quantity for item in order.order_items),
-            "total_price": float(order.total_amount),
             "status": order.status,
-        })
-    # Pridėk print debug:
-    print("DEBUG: orders_for_template", orders_for_template)
+            "items": [
+                {
+                    "product_id": item.product_id,
+                    "has_review": getattr(item, "has_review", False)
+                } for item in order.order_items
+            ]
+        } for order in orders
+    ])
     return render_template(
         'user/profile.html',
         user=user,
-        orders=orders_for_template   # <- svarbiausia
+        orders=orders   # Svarbiausia – siunčiam visą objektą su order_items
     )
 
 # Balanso papildymas
