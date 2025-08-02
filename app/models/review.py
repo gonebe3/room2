@@ -7,8 +7,10 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=True)
     rating = db.Column(db.Integer, nullable=False)  # 1–5
     comment = db.Column(db.Text, nullable=True)
+    
 
     created_at = db.Column(
         db.DateTime(timezone=True),
@@ -33,6 +35,10 @@ class Review(db.Model):
         "Product",
         back_populates="reviews",
         foreign_keys=[product_id]
+    )
+    order = db.relationship(
+        "Order", backref="reviews",
+          foreign_keys=[order_id]
     )
 
     def __repr__(self):
