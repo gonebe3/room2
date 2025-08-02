@@ -39,6 +39,11 @@
                         <img src="{{ url_for('static', filename='images/icons/logout.svg') }}" class="icon icon-logout" alt="Atsijungti">
                         Atsijungti
                     </a>
+                    <!-- Krepšelis rodomas tik prisijungus -->
+                    <a href="{{ url_for('cart.view_cart') }}" class="cart-link">
+                        <img src="{{ url_for('static', filename='images/icons/cart.svg') }}" class="icon icon-cart" alt="Krepšelis">
+                        <span class="cart-count">{% if cart_count %}{{ cart_count }}{% else %}0{% endif %}</span>
+                    </a>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="login-link">
                         <img src="{{ url_for('static', filename='images/icons/user.svg') }}" class="icon icon-login" alt="Prisijungti">
@@ -49,10 +54,6 @@
                         Registruotis
                     </a>
                 {% endif %}
-                <a href="{{ url_for('cart.view_cart') }}" class="cart-link">
-                    <img src="{{ url_for('static', filename='images/icons/cart.svg') }}" class="icon icon-cart" alt="Krepšelis">
-                    <span class="cart-count">{% if cart_count %}{{ cart_count }}{% else %}0{% endif %}</span>
-                </a>
             </div>
             <button class="menu-toggle" aria-label="Atidaryti meniu">
                 <img src="{{ url_for('static', filename='images/icons/menu.svg') }}" class="icon icon-menu" alt="Meniu">
@@ -69,8 +70,19 @@
                         Prekių katalogas
                     </a>
                 </li>
-                <li>
-                    <a href="#"><img src="{{ url_for('static', filename='images/icons/filter.svg') }}" class="icon icon-filter" alt="Filtruoti"> Filtruoti</a>
+                <li class="categories-dropdown">
+                    <a href="#" id="categories-btn">
+                        <img src="{{ url_for('static', filename='images/icons/category.svg') }}" class="icon icon-category" alt="Kategorijos"> Kategorijos
+                    </a>
+                    <div class="categories-popup">
+                        <ul>
+                            {% for category in categories %}
+                                <li>
+                                    <a href="{{ url_for('product.product_list', category=category.id) }}">{{ category.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </li>
                 <li>
                     <a href="#"><img src="{{ url_for('static', filename='images/icons/discount.svg') }}" class="icon icon-discount" alt="Akcijos"> Akcijos</a>

@@ -12,11 +12,10 @@
                 <div class="profile-username">{{ user.username }}</div>
                 <div class="profile-email">{{ user.email }}</div>
             </div>
-            <form method="POST" action="{{ url_for('auth.logout') }}">
-                <button type="submit" class="btn btn-logout profile-logout-btn" title="Atsijungti">
-                    <span class="icon-logout"></span>
-                </button>
-            </form>
+            <!-- Atsijungti paprastas linkas -->
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-logout profile-logout-btn" title="Atsijungti">
+                <span class="icon-logout"></span>
+            </a>
         </div>
     </div>
 
