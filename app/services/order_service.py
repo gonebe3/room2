@@ -3,6 +3,7 @@ from app.models.order_item import OrderItem
 from app.utils.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
+from app.models.user import User
 
 def get_all_orders():
     """Gražina VISUS užsakymus su OrderItem'ais (admin view, statistika)"""
@@ -47,6 +48,13 @@ def get_orders_by_user(user_id):
         print(f"Klaida gaunant vartotojo užsakymus: {e}")
         return []
 
+from app.models.user import User
+from app.models.order import Order
+from app.models.order_item import OrderItem
+from sqlalchemy.orm import joinedload
+from sqlalchemy.exc import SQLAlchemyError
+from app.utils.extensions import db
+
 def create_order(
     user_id,
     cart_items,
@@ -56,19 +64,34 @@ def create_order(
     notes=None,
     created_by=None
 ):
+    """
+    Sukuria užsakymą su visomis prekėmis, nurašo balansą, grąžina (order, klaida)
+    """
     try:
+        # 1. Patikrinam vartotoją
+        user = db.session.get(User, user_id)
+        if not user:
+            return None, "Naudotojas nerastas."
+        if float(user.balance) < float(total_amount):
+            return None, "Nepakanka lėšų sąskaitoje."
+
+        # 2. Nurašom balansą
+        user.balance = float(user.balance) - float(total_amount)
+
+        # 3. Sukuriam užsakymą su status="paid" (nes balansas jau nurašytas)
         order = Order(
             user_id=user_id,
             total_amount=total_amount,
-            status="pending",
+            status="paid",   # <- svarbiausia vieta!
             shipping_address=shipping_address,
             notes=notes,
             created_by=created_by,
             discount_id=discount_id
         )
         db.session.add(order)
-        db.session.flush()  # order.id žinomas
+        db.session.flush()  # Kad gautume order.id
 
+        # 4. Pridedam visas order prekes
         for item in cart_items:
             order_item = OrderItem(
                 order_id=order.id,
@@ -80,7 +103,8 @@ def create_order(
             db.session.add(order_item)
 
         db.session.commit()
-        # Užkrauna order su order_items (atnaujina, jei reikia)
+
+        # 5. Užkraunam orderį su order_items (jei reikia detaliam grąžinimui)
         db.session.refresh(order)
         order = (
             Order.query
@@ -92,7 +116,8 @@ def create_order(
     except SQLAlchemyError as e:
         db.session.rollback()
         print(f"Klaida kuriant užsakymą: {e}")
-        return None, str(e)
+        return None, "Įvyko klaida kuriant užsakymą. Bandykite dar kartą."
+
 
 def update_order_status(order_id, new_status, modified_by=None):
     try:
