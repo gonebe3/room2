@@ -28,6 +28,7 @@ def create_product(form, upload_folder):
             quantity=form.quantity.data,
             image_filename=filename,
             is_active=form.is_active.data,
+            category_id=form.category.data
             # category_id jei reikia...
         )
         db.session.add(product)
@@ -49,6 +50,7 @@ def update_product(product, form, upload_folder):
         product.price = form.price.data
         product.quantity = form.quantity.data
         product.is_active = form.is_active.data
+        product.category_id = form.category.data 
         db.session.commit()
         return product
     except SQLAlchemyError as e:
