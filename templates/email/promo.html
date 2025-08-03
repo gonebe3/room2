@@ -35,6 +35,30 @@
                             </p>
                         </td>
                     </tr>
+                    <!-- PRENUMERATOS BLOKAS -->
+                    <tr>
+                        <td align="center" style="padding-bottom:18px;">
+                            <form method="POST" style="margin: 18px 0 0 0; display:inline-block;">
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    placeholder="Įveskite savo el. paštą"
+                                    required
+                                    style="padding:8px 14px; border-radius:7px; border:1px solid #e0e4ee; font-size:1rem; margin-right:8px;"
+                                >
+                                <button 
+                                    type="submit"
+                                    style="background:#3E92CC;color:#fff;font-weight:700;font-size:1rem;border-radius:7px;padding:8px 18px;border:none;cursor:pointer;"
+                                >Prenumeruoti</button>
+                            </form>
+                            {% if discount_code %}
+                                <div style="margin-top:12px; background:#3E92CC;color:#fff;font-weight:700;font-size:1.02rem;border-radius:8px;padding:8px 18px;letter-spacing:1.1px;display:inline-block;">
+                                    Ačiū! Jūsų nuolaidos kodas: {{ discount_code }}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <!-- Pabaiga PRENUMERATOS BLOKO -->
                     {% if promo_button_url and promo_button_text %}
                     <tr>
                         <td align="center" style="padding-bottom:23px;">
