@@ -40,7 +40,7 @@
             </div>
             <div class="admin-card-title">Užsakymai</div>
             <div class="admin-card-value">{{ stats.orders_count }}</div>
-            <a href="{{ url_for('admin.orders') }}" class="btn btn-admin">Redaguoti</a>
+            <a href="{{ url_for('admin.order_list') }}" class="btn btn-admin">Redaguoti</a>
         </div>
         <!-- Nuolaidos -->
         <div class="admin-card">
@@ -57,7 +57,7 @@
         <div class="admin-summary-block">
             <div class="admin-summary-title">Šiandien parduota</div>
             <div class="admin-summary-value">{{ stats.today_sales_count }}</div>
-            <div class="admin-summary-label">prekės</div>
+            <div class="admin-summary-label">užsakymų</div>
         </div>
         <div class="admin-summary-block">
             <div class="admin-summary-title">Šio mėnesio apyvarta</div>
