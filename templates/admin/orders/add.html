@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block title %}Pridėti naują nuolaidą{% endblock %}
+
+{% block content %}
+<div class="container admin-discounts-form-container">
+  <h2 class="admin-discounts-form-title">Pridėti naują nuolaidą</h2>
+  <form method="POST" action="{{ url_for('admin_discounts.add_discount') }}" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      {{ form.code.label(class_='form-label') }}
+      {{ form.code(class_='form-control', placeholder='Įveskite kodą', autofocus=True) }}
+      {% if form.code.errors %}<div class="form-error">{{ form.code.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.description.label(class_='form-label') }}
+      {{ form.description(class_='form-control', placeholder='Trumpas aprašymas') }}
+      {% if form.description.errors %}<div class="form-error">{{ form.description.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.discount_type.label(class_='form-label') }}
+      {{ form.discount_type(class_='form-control') }}
+      {% if form.discount_type.errors %}<div class="form-error">{{ form.discount_type.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group percent-field">
+      {{ form.percentage.label(class_='form-label') }}
+      {{ form.percentage(class_='form-control', placeholder='pvz. 10') }}
+      {% if form.percentage.errors %}<div class="form-error">{{ form.percentage.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-group fixed-field">
+      {{ form.value.label(class_='form-label') }}
+      {{ form.value(class_='form-control', placeholder='pvz. 5') }}
+      {% if form.value.errors %}<div class="form-error">{{ form.value.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.min_purchase.label(class_='form-label') }}
+      {{ form.min_purchase(class_='form-control', placeholder='Minimali pirkimo suma') }}
+      {% if form.min_purchase.errors %}<div class="form-error">{{ form.min_purchase.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group loyalty-field">
+      {{ form.loyalty_min_orders.label(class_='form-label') }}
+      {{ form.loyalty_min_orders(class_='form-control', placeholder='Min. pirkimų skaičius') }}
+      {% if form.loyalty_min_orders.errors %}<div class="form-error">{{ form.loyalty_min_orders.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-group loyalty-field">
+      {{ form.loyalty_min_amount.label(class_='form-label') }}
+      {{ form.loyalty_min_amount(class_='form-control', placeholder='Minimali lojalumo suma') }}
+      {% if form.loyalty_min_amount.errors %}<div class="form-error">{{ form.loyalty_min_amount.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-group loyalty-field">
+      {{ form.loyalty_period_days.label(class_='form-label') }}
+      {{ form.loyalty_period_days(class_='form-control', placeholder='Laikotarpis dienomis') }}
+      {% if form.loyalty_period_days.errors %}<div class="form-error">{{ form.loyalty_period_days.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.valid_from.label(class_='form-label') }}
+      {{ form.valid_from(class_='form-control') }}
+      {% if form.valid_from.errors %}<div class="form-error">{{ form.valid_from.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-group">
+      {{ form.valid_until.label(class_='form-label') }}
+      {{ form.valid_until(class_='form-control') }}
+      {% if form.valid_until.errors %}<div class="form-error">{{ form.valid_until.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.usage_limit.label(class_='form-label') }}
+      {{ form.usage_limit(class_='form-control', placeholder='Max panaudojimų skaičius') }}
+      {% if form.usage_limit.errors %}<div class="form-error">{{ form.usage_limit.errors[0] }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.submit(class_='btn btn-admin') }}
+      <a href="{{ url_for('admin_discounts.list_discounts') }}" class="btn btn-secondary">Atšaukti</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
