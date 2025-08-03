@@ -13,6 +13,9 @@ from app.forms.cart_form import CartAddForm
 from app.forms.search_form import SearchForm
 from app.services.search_service import search_products
 from app.models.review import Review  # importuok modelį filtravimui
+from app.services.search_service import filter_products_by_category_id
+from app.models.product import Product
+from app.models.category import Category
 
 product_bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -60,3 +63,49 @@ def product_list():
         reviews_count=reviews_count,
         forms=forms
     )
+
+@product_bp.route('/category/<int:category_id>', methods=["GET"])
+def products_by_category(category_id):
+    # Papildomi GET filtrai (paieška, rikiavimas)
+    search_text = request.args.get('q', '')
+    sort_by = request.args.get('sort_by', 'default')
+
+    # Tikriname ar tokia kategorija egzistuoja
+    category = Category.query.get(category_id)
+    if not category:
+        flash("Tokia kategorija neegzistuoja.", "danger")
+        # Galima redirectinti į bendrą prekių sąrašą arba 404 puslapį
+        return render_template('product/products_by_category.html',
+                               products=[], category=None, categories=[], selected_category=None,
+                               avg_ratings={}, reviews_count={}, forms={})
+
+    # Gauname produktus pagal kategoriją (ir paiešką/rikiavimą, jei reikia)
+    products = filter_products_by_category_id(
+        category_id=category_id,
+        search_text=search_text,
+        sort_by=sort_by
+    )
+
+    # Gauname visas kategorijas filtrui (jei nori šone rodyti)
+    categories = Category.query.order_by(Category.name).all()
+
+    # Vidutiniai įvertinimai ir atsiliepimų kiekiai
+    avg_ratings = {p.id: get_average_rating(p.id) or 0 for p in products}
+    reviews_count = {p.id: get_review_count(p.id) or 0 for p in products}
+    forms = {p.id: CartAddForm(product_id=p.id, quantity=1) for p in products}
+
+    # Jei prekių nėra – informuojam vartotoją
+    if not products:
+        flash("Šioje kategorijoje šiuo metu prekių nėra.", "info")
+
+    return render_template(
+        'product/products_by_category.html',   # arba 'product/product_list.html' jei universalus šablonas
+        products=products,
+        category=category,
+        categories=categories,
+        selected_category=category_id,
+        avg_ratings=avg_ratings,
+        reviews_count=reviews_count,
+        forms=forms
+    )
+    
