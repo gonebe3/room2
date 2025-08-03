@@ -1,5 +1,8 @@
-from app.models.product import Product
 from sqlalchemy import or_
+from app.models.product import Product
+from app.models.category import Category
+from sqlalchemy.exc import SQLAlchemyError
+
 
 
 
@@ -50,3 +53,43 @@ def search_products(search_text='', sort_by='default'):
         query = query.order_by(Product.created_at.desc())
 
     return query.all()
+
+def filter_products_by_category_id(category_id=None, search_text='', sort_by='default'):
+    """
+    Filtruoja ir grąžina aktyvius produktus pagal kategorijos id (ar be jo).
+    """
+    try:
+        query = Product.query.filter(Product.is_active == True)
+
+        # Filtras pagal kategorijos id
+        if category_id:
+            # Patikrinam ar kategorija egzistuoja
+            category = Category.query.get(int(category_id))
+            if not category:
+                return []
+            query = query.filter(Product.category_id == category.id)
+
+        # Papildomas tekstinis filtras
+        if search_text:
+            ilike_pattern = f"%{search_text}%"
+            query = query.filter(
+                (Product.name.ilike(ilike_pattern)) |
+                (Product.description.ilike(ilike_pattern))
+            )
+
+        # Rūšiavimas (pagal poreikį)
+        if sort_by == 'price_asc':
+            query = query.order_by(Product.price.asc())
+        elif sort_by == 'price_desc':
+            query = query.order_by(Product.price.desc())
+        elif sort_by == 'name_asc':
+            query = query.order_by(Product.name.asc())
+        elif sort_by == 'name_desc':
+            query = query.order_by(Product.name.desc())
+        else:
+            query = query.order_by(Product.created_at.desc())
+
+        return query.all()
+    except SQLAlchemyError as e:
+        print(f"Klaida filtruojant produktus: {e}")
+        return []
