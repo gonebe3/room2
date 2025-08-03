@@ -46,14 +46,18 @@
                 <p>{{ product.description or "Aprašymo nėra." }}</p>
             </div>
 
-            <!-- Pridėti į krepšelį forma -->
+            <!-- Pridėti į krepšelį -->
             {% if product.quantity > 0 %}
-            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="product-detail-actions">
-                {{ form.hidden_tag() }}
-                <label for="quantity" class="me-2">Kiekis:</label>
-                {{ form.quantity(min=1, max=product.quantity, value=1, id="quantity", class_="form-control d-inline-block w-auto ms-2 me-2") }}
-                {{ form.submit(class_="btn btn-primary btn-cart") }}
-            </form>
+                {% if current_user.is_authenticated %}
+                    <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="product-detail-actions">
+                        {{ form.hidden_tag() }}
+                        <label for="quantity" class="me-2">Kiekis:</label>
+                        {{ form.quantity(min=1, max=product.quantity, value=1, id="quantity", class_="form-control d-inline-block w-auto ms-2 me-2") }}
+                        {{ form.submit(class_="btn btn-primary btn-cart") }}
+                    </form>
+                {% else %}
+                    <p class="text-muted">Prisijunkite, kad galėtumėte pridėti į krepšelį</p>
+                {% endif %}
             {% else %}
                 <div class="alert alert-warning mt-2">Prekės šiuo metu nėra sandėlyje</div>
             {% endif %}

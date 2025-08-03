@@ -9,7 +9,6 @@ class SearchForm(FlaskForm):
         ('price_desc', 'Kaina: nuo didžiausios'),
         ('best_rated', 'Geriausiai įvertintos'),
         ('most_popular', 'Populiariausios'),
-        ('discount', 'Su nuolaida')
     ])
     submit = SubmitField('Filtruoti')
     
