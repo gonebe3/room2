@@ -4,9 +4,7 @@ from app.forms.product_form import ProductForm
 from app.forms.admin_user_form import AdminUserForm
 from app.forms.category_form import CategoryForm
 from app.forms.admin_order_form import AdminOrderForm
-
-
-# PRIDĖTA – order CRUD forma (jei dar neturi, sukurk kaip admin_order_form.py)
+from app.services.admin_stats_service import get_admin_dashboard_stats
 
 # PRIDĖTA – order servisai
 from app.services.order_service import (
@@ -48,17 +46,7 @@ def admin_required(func):
 @login_required
 @admin_required
 def dashboard():
-    stats = {
-        "users_count": len(get_all_users()),
-        "categories_count": len(get_all_categories()),  
-        "products_count": len(get_all_products()),
-        "orders_count": len(get_all_orders()),
-        "discounts_count": 0,        # TODO: pridėti nuolaidų count
-        "today_sales_count": 0,      # TODO: parduota šiandien
-        "month_revenue": 0,          # TODO: mėnesio apyvarta €
-        "top_product_name": "-",     # TODO: populiariausia prekė
-        "top_client_name": "-"       # TODO: geriausias klientas
-    }
+    stats = get_admin_dashboard_stats()
     return render_template('admin/dashboard.html', stats=stats)
 
 # --- USERS CRUD ---
