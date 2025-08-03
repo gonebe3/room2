@@ -14,7 +14,6 @@
                 <option value="price_desc" {% if request.args.get('sort_by') == 'price_desc' %}selected{% endif %}>Kaina: nuo didžiausios</option>
                 <option value="best_rated" {% if request.args.get('sort_by') == 'best_rated' %}selected{% endif %}>Geriausiai įvertintos</option>
                 <option value="most_popular" {% if request.args.get('sort_by') == 'most_popular' %}selected{% endif %}>Populiariausios</option>
-                <option value="discount" {% if request.args.get('sort_by') == 'discount' %}selected{% endif %}>Su nuolaida</option>
             </select>
             <button type="submit" class="btn filter-btn">Filtruoti</button>
         </form>
@@ -57,11 +56,13 @@
                     </div>
                     <div class="product-actions">
                         <a href="{{ url_for('product.product_detail', product_id=product.id) }}" class="btn btn-secondary btn-details">Apžiūrėti</a>
+                        {% if current_user.is_authenticated %}
                         <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
                             {{ forms[product.id].hidden_tag() }}
                             {{ forms[product.id].quantity(type="hidden", value=1) }}
                             {{ forms[product.id].submit(class_="btn btn-primary btn-cart") }}
                         </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>

@@ -3,40 +3,50 @@ from sqlalchemy import or_
 
 
 
+
 def search_products(search_text='', sort_by='default'):
     """
+    Gražina tik aktyvius produktus, atitinkančius paieškos ir rikiavimo kriterijus.
 
-    :param search_text: Ieškomas tekstas (produkto pavadinime arba aprašyme)
-    :param sort_by: Rikiavimo kriterijus ('price_asc', 'price_desc', 'name_asc', 'name_desc', ir t.t.)
-    :return: Produktų sąrašas
+    :param search_text: Ieškomas tekstas produkto pavadinime arba aprašyme.
+    :param sort_by: Rikiavimo kriterijus:
+        'price_asc', 'price_desc', 'name_asc', 'name_desc',
+        'best_rated', 'most_popular', 'discount', arba 'default'.
+    :return: Sąrašas aktyvių ir nepašalintų produktų.
     """
-    produktai = Product.query
+    # Pradedame nuo aktyvių produktų
+    query = Product.query.filter(
+        Product.is_active == True
+    )
 
-    
+    # Filtras pagal paieškos tekstą
     if search_text:
-        produktai = produktai.filter(
+        ilike_pattern = f"%{search_text}%"
+        query = query.filter(
             or_(
-                Product.name.ilike(f'%{search_text}%'),
-                Product.description.ilike(f'%{search_text}%')
+                Product.name.ilike(ilike_pattern),
+                Product.description.ilike(ilike_pattern)
             )
         )
 
-    # Rikiavimas
+    # Rikiavimas pagal pasirinktą kriterijų
     if sort_by == 'price_asc':
-        produktai = produktai.order_by(Product.price.asc())
+        query = query.order_by(Product.price.asc())
     elif sort_by == 'price_desc':
-        produktai = produktai.order_by(Product.price.desc())
+        query = query.order_by(Product.price.desc())
     elif sort_by == 'name_asc':
-        produktai = produktai.order_by(Product.name.asc())
+        query = query.order_by(Product.name.asc())
     elif sort_by == 'name_desc':
-        produktai = produktai.order_by(Product.name.desc())
+        query = query.order_by(Product.name.desc())
     elif sort_by == 'best_rated' and hasattr(Product, 'rating'):
-        produktai = produktai.order_by(Product.rating.desc())
+        query = query.order_by(Product.rating.desc())
     elif sort_by == 'most_popular' and hasattr(Product, 'sales_count'):
-        produktai = produktai.order_by(Product.sales_count.desc())
+        query = query.order_by(Product.sales_count.desc())
     elif sort_by == 'discount':
-        produktai = produktai.filter(Product.discount_id.isnot(None)).order_by(Product.price.asc())
+        # Rikiuojame tuos, kuriems priskirtas discount_id
+        query = query.filter(Product.discount_id.isnot(None)).order_by(Product.price.asc())
     else:
-        produktai = produktai.order_by(Product.id)  # default
+        # Numatytoji tvarka pagal įrašų sukūrimo laiką
+        query = query.order_by(Product.created_at.desc())
 
-    return produktai.all()
+    return query.all()
