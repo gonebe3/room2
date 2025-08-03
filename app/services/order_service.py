@@ -6,6 +6,8 @@ from app.utils.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from app.services.review_service import get_reviews_by_user, get_user_review_for_product_and_order
+from app.models.discount import Discount
+
 
 
 def get_all_orders():
@@ -108,7 +110,9 @@ def create_order(
     created_by=None
 ):
     """
-    Sukuria užsakymą su visomis prekėmis, nurašo balansą ir sandėlį, grąžina (order, klaida)
+    Sukuria užsakymą su visomis prekėmis, nurašo balansą ir sandėlį,
+    pritaiko nuolaidą (jei nurodytas discount_id) ir atnaujina discount.used_count.
+    Grąžina (order, klaida)
     """
     try:
         # 1. Patikrinam vartotoją
@@ -129,7 +133,7 @@ def create_order(
         # 4. Nurašom kiekius sandėlyje
         deduct_product_quantities(cart_items)
 
-        # 5. Sukuriam užsakymą su status="paid" (nes balansas jau nurašytas)
+        # 5. Sukuriam užsakymą su status="paid"
         order = Order(
             user_id=user_id,
             total_amount=total_amount,
@@ -153,9 +157,19 @@ def create_order(
             )
             db.session.add(order_item)
 
+        # **7. Atnaujiname discount.used_count**
+        if discount_id:
+            d = db.session.get(Discount, discount_id)
+            if d:
+                d.used_count = (d.used_count or 0) + 1
+                # Auto-deaktyvuojame, jei pasiekėme limitą
+                if d.usage_limit and d.used_count >= d.usage_limit:
+                    d.is_active = False
+
+        # 8. Commit’intam viską vienoje transakcijoje
         db.session.commit()
 
-        # 7. Užkraunam orderį su order_items (jei reikia detaliam grąžinimui)
+        # 9. Užkraunam orderį su order_items (detalėms)
         db.session.refresh(order)
         order = (
             Order.query
@@ -164,6 +178,7 @@ def create_order(
             .first()
         )
         return order, None
+
     except SQLAlchemyError as e:
         db.session.rollback()
         print(f"Klaida kuriant užsakymą: {e}")

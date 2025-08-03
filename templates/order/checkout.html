@@ -35,6 +35,18 @@
                 {% endfor %}
             </div>
 
+            <!-- Nuolaidos kodo laukas su dviem mygtukais -->
+            <div class="form-group">
+                {{ form.discount_code.label }}
+                <div class="input-group">
+                    {{ form.discount_code(class_="form-control", placeholder="Įveskite nuolaidos kodą") }}
+                    <button name="action" value="apply" class="btn btn-outline-secondary">Taikyti kodą</button>
+                </div>
+                {% for error in form.discount_code.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
             <div class="form-group">
                 {{ form.total_price.label }}
                 {{ form.total_price(class_="form-control", readonly=true) }}
@@ -42,48 +54,31 @@
 
             <div class="checkout-submit">
                 <a href="{{ url_for('cart.view_cart') }}" class="btn btn-secondary">Grįžti į krepšelį</a>
-                {{ form.submit(class_="btn btn-primary btn-block") }}
+                <button name="action" value="confirm" class="btn btn-primary btn-block">Patvirtinti užsakymą</button>
             </div>
         </form>
 
         <div class="checkout-summary">
             <h3>Jūsų krepšelis</h3>
-            <div class="checkout-summary-products">
-                {% if cart_items and cart_items|length > 0 %}
-                    {% for item in cart_items %}
-                        <div class="checkout-product">
-                            <img src="{{ url_for('static', filename='uploads/' ~ (item.product.image_filename or 'default.png')) }}"
-                                 alt="{{ item.product.name }}" class="checkout-product-img">
-                            <div>
-                                <div class="checkout-product-title">{{ item.product.name }}</div>
-                                <div class="checkout-product-qty">x{{ item.quantity }}</div>
-                            </div>
-                            <div class="checkout-product-price">
-                                {% if item.product.discount_price %}
-                                    {{ (item.product.discount_price * item.quantity)|round(2) }}€
-                                {% else %}
-                                    {{ (item.product.price * item.quantity)|round(2) }}€
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="cart-empty">
-                        <p>Krepšelis tuščias.</p>
-                    </div>
-                {% endif %}
-            </div>
             <div class="checkout-summary-row">
                 <span>Iš viso:</span>
-                <span>{{ total|round(2) }}€</span>
+                <span>{{ summary.total|round(2) }}€</span>
             </div>
             <div class="checkout-summary-row">
-                <span>Nuolaidos:</span>
-                <span>-{{ total_discount|round(2) }}€</span>
+                <span>Prekių nuolaidos:</span>
+                <span>-{{ summary.discount_items|round(2) }}€</span>
+            </div>
+            <div class="checkout-summary-row">
+                <span>Kodo nuolaida:</span>
+                <span>-{{ summary.code_discount|round(2) }}€</span>
+            </div>
+            <div class="checkout-summary-row">
+                <span>Bendras sutaupymas:</span>
+                <span>-{{ summary.total_discount|round(2) }}€</span>
             </div>
             <div class="checkout-summary-final">
                 <span>Mokėti:</span>
-                <span>{{ total_final|round(2) }}€</span>
+                <span>{{ summary.total_final|round(2) }}€</span>
             </div>
         </div>
     </div>

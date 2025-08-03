@@ -222,3 +222,22 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+// JavaScript for dynamic display of discount form fields based on selected type
+
+document.addEventListener('DOMContentLoaded', () => {
+  const typeSelect = document.querySelector('select[name="discount_type"]');
+  const percentFields = document.querySelectorAll('.percent-field');
+  const fixedFields = document.querySelectorAll('.fixed-field');
+  const loyaltyFields = document.querySelectorAll('.loyalty-field');
+
+  function updateFields() {
+    const val = typeSelect.value;
+    percentFields.forEach(el => el.style.display = val === 'percent' ? 'block' : 'none');
+    fixedFields.forEach(el => el.style.display = val === 'fixed' ? 'block' : 'none');
+    loyaltyFields.forEach(el => el.style.display = val === 'loyalty' ? 'block' : 'none');
+  }
+
+  typeSelect.addEventListener('change', updateFields);
+  updateFields();
+});

@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block title %}Nuolaidų sąrašas{% endblock %}
+
+{% block content %}
+<div class="container admin-discounts-container">
+    <h2 class="admin-discounts-title">Nuolaidų sąrašas</h2>
+
+    <!-- Mygtukas pridėti naują nuolaidą -->
+    <a href="{{ url_for('admin_discounts.add_discount') }}" class="btn btn-admin-add">+ Pridėti nuolaidą</a>
+
+    <div class="admin-discounts-table-wrap">
+        <table class="admin-discounts-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Kodas</th>
+                    <th>Tipas</th>
+                    <th>Reikšmė</th>
+                    <th>Min. suma</th>
+                    <th>Min. pirkimų</th>
+                    <th>Min. lojalumo suma</th>
+                    <th>Periodas dienomis</th>
+                    <th>Galioja nuo</th>
+                    <th>Galioja iki</th>
+                    <th>Aktyvus</th>
+                    <th>Panaudota</th>
+                    <th>Veiksmai</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in discounts %}
+                <tr>
+                    <td>{{ d.id }}</td>
+                    <td>{{ d.code }}</td>
+                    <td>{{ d.discount_type }}</td>
+                    <td>
+                        {% if d.discount_type == 'percent' %}
+                            {{ d.value }} %
+                        {% else %}
+                            {{ d.value|round(2) }} €
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.min_purchase is not none %}
+                            {{ d.min_purchase|round(2) }} €
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ d.loyalty_min_orders or '-' }}</td>
+                    <td>
+                        {% if d.loyalty_min_amount is not none %}
+                            {{ d.loyalty_min_amount|round(2) }} €
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ d.loyalty_period_days or '-' }}</td>
+                    <td>{{ d.valid_from.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ d.valid_until.strftime('%Y-%m-%d') if d.valid_until else '-' }}</td>
+                    <td>{{ 'Taip' if d.is_active else 'Ne' }}</td>
+                    <td>{{ d.used_count }}</td>
+                    <td>
+                        <!-- Detalių peržiūra -->
+                        <a href="{{ url_for('admin_discounts.detail_discount', discount_id=d.id) }}" class="btn btn-link btn-small">Peržiūrėti</a>
+                        <!-- Redagavimas -->
+                        <a href="{{ url_for('admin_discounts.edit_discount', discount_id=d.id) }}" class="btn btn-link btn-small">Redaguoti</a>
+                        <!-- Trinimas -->
+                        <form method="POST" action="{{ url_for('admin_discounts.delete_discount_route', discount_id=d.id) }}" style="display:inline;" onsubmit="return confirm('Ar tikrai norite ištrinti šią nuolaidą?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-small">Ištrinti</button>
+                        </form>
+                        <!-- Aktyvavimas/deaktyvavimas -->
+                        {% if d.is_active %}
+                        <form method="POST" action="{{ url_for('admin_discounts.deactivate_discount_route', discount_id=d.id) }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-warning btn-small">Deaktyvuoti</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="{{ url_for('admin_discounts.activate_discount_route', discount_id=d.id) }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-success btn-small">Aktyvuoti</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="13" class="admin-discounts-empty">Nėra nuolaidų.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
