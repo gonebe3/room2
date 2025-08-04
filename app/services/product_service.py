@@ -3,8 +3,6 @@ from app.utils.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 import os
-from sqlalchemy import func
-
 
 def get_all_products():
     return Product.query.order_by(Product.created_at.desc()).all()
@@ -17,9 +15,6 @@ def create_product(form, upload_folder):
         filename = None
         if form.image.data:
             filename = secure_filename(form.image.data.filename)
-            # Sukuriam katalogą, jei jo nėra
-            if not os.path.exists(upload_folder):
-                os.makedirs(upload_folder)
             form.image.data.save(os.path.join(upload_folder, filename))
         product = Product(
             name=form.name.data,
@@ -28,8 +23,6 @@ def create_product(form, upload_folder):
             quantity=form.quantity.data,
             image_filename=filename,
             is_active=form.is_active.data,
-            category_id=form.category.data
-            # category_id jei reikia...
         )
         db.session.add(product)
         db.session.commit()
@@ -50,7 +43,6 @@ def update_product(product, form, upload_folder):
         product.price = form.price.data
         product.quantity = form.quantity.data
         product.is_active = form.is_active.data
-        product.category_id = form.category.data 
         db.session.commit()
         return product
     except SQLAlchemyError as e:
@@ -88,4 +80,3 @@ def delete_product(product):
         db.session.rollback()
         print(f"Klaida trinant produktą: {e}")
         return False
-    

@@ -6,21 +6,30 @@ from flask_migrate import Migrate
 from flask_caching import Cache
 from flask_admin import Admin
 
+# Duomenų bazė (ORM)
 db = SQLAlchemy()
-login_manager = LoginManager()
-mail = Mail()
-csrf = CSRFProtect()
-migrate = Migrate()
-cache = Cache()
-admin = Admin(name='admin_panel', endpoint='admin_panel')  # <-- Svarbiausia vieta!
 
+# Autentifikacija/sesijos
+login_manager = LoginManager()
+
+# El. paštas
+mail = Mail()
+
+# CSRF apsauga visoms POST formoms (integruojasi su Flask-WTF)
+csrf = CSRFProtect()
+
+# Migracijų sistema (Alembic) – inicijuosite su app pagrindiniame faile
+migrate = Migrate()
+
+# Cache (naudokite SimpleCache arba, jei reikia, Redis ar Memcached)
+cache = Cache()
+
+# Admino panelė
+admin = Admin()
+
+# (Papildomai, jei naudosite Flask-Uploads)
 try:
-    from flask_uploads import UploadSet, IMAGES
+    from flask_uploads import UploadSet, IMAGES, configure_uploads, patch_request_class
     photos = UploadSet('photos', IMAGES)
 except ImportError:
-    photos = None
-
-import stripe
-
-def init_stripe(app):
-    stripe.api_key = app.config['STRIPE_SECRET_KEY']
+    photos = None 

@@ -1,96 +1,87 @@
 {% extends "layout.html" %}
-{% block title %}{{ product.name }}{% endblock %}
+{% block title %}{{ product.title }}{% endblock %}
 
 {% block content %}
 <div class="container product-detail-container">
     <div class="product-detail-main">
-        <!-- Produktas – nuotrauka -->
+        <!-- Prekės nuotrauka -->
         <div class="product-detail-image-block">
-            <img src="{{ url_for('static', filename='uploads/' ~ (product.image_filename or 'default.png')) }}"
-                 alt="{{ product.name }}"
-                 class="product-detail-image" loading="lazy">
+            <img src="{{ url_for('static', filename='images/products/' ~ product.image) }}"
+                 alt="{{ product.title }}"
+                 class="product-detail-image">
             {% if product.discount %}
                 <div class="product-badge discount-badge">-{{ product.discount }}%</div>
             {% endif %}
         </div>
 
-        <!-- Produktas – info -->
+        <!-- Prekės informacija -->
         <div class="product-detail-info">
-            <h1 class="product-detail-title">{{ product.name }}</h1>
-            
-            <div class="product-detail-rating mb-2" aria-label="Vidutinis įvertinimas">
-                {% set avg = avg_rating if avg_rating is not none else 0 %}
+            <h1 class="product-detail-title">{{ product.title }}</h1>
+            <div class="product-detail-brand">{{ product.brand }}</div>
+
+            <div class="product-detail-rating">
                 {% for i in range(1, 6) %}
-                    {% if i <= avg|round(0, 'floor') %}
-                        <span class="star filled" aria-hidden="true">&#9733;</span>
+                    {% if i <= product.rating %}
+                        <span class="star filled">&#9733;</span>
                     {% else %}
-                        <span class="star" aria-hidden="true">&#9734;</span>
+                        <span class="star">&#9734;</span>
                     {% endif %}
                 {% endfor %}
-                <span class="rating-count">({{ reviews_count }})</span>
+                <span class="rating-count">({{ product.reviews_count }})</span>
             </div>
-            
-            <div class="product-detail-pricing mb-2">
+            <div class="product-detail-pricing">
                 {% if product.discount_price %}
-                    <span class="price-old">{{ product.price|round(2) }}€</span>
-                    <span class="price-new">{{ product.discount_price|round(2) }}€</span>
+                    <span class="price-old">{{ product.price }}€</span>
+                    <span class="price-new">{{ product.discount_price }}€</span>
                 {% else %}
-                    <span class="price-new">{{ product.price|round(2) }}€</span>
+                    <span class="price-new">{{ product.price }}€</span>
                 {% endif %}
             </div>
-            <div class="product-detail-stock mb-2">
-                {{ "Yra sandėlyje: " ~ product.quantity if product.quantity > 0 else "Šiuo metu neturime" }}
+            <div class="product-detail-stock">
+                {{ "Yra sandėlyje" if product.in_stock else "Šiuo metu neturime" }}
             </div>
-            <div class="product-detail-description mb-4">
+            <div class="product-detail-description">
                 <h4>Aprašymas</h4>
-                <p>{{ product.description or "Aprašymo nėra." }}</p>
+                <p>{{ product.description }}</p>
             </div>
-
-            <!-- Pridėti į krepšelį -->
-            {% if product.quantity > 0 %}
-                {% if current_user.is_authenticated %}
-                    <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="product-detail-actions">
-                        {{ form.hidden_tag() }}
-                        <label for="quantity" class="me-2">Kiekis:</label>
-                        {{ form.quantity(min=1, max=product.quantity, value=1, id="quantity", class_="form-control d-inline-block w-auto ms-2 me-2") }}
-                        {{ form.submit(class_="btn btn-primary btn-cart") }}
-                    </form>
-                {% else %}
-                    <p class="text-muted">Prisijunkite, kad galėtumėte pridėti į krepšelį</p>
-                {% endif %}
-            {% else %}
-                <div class="alert alert-warning mt-2">Prekės šiuo metu nėra sandėlyje</div>
-            {% endif %}
+            <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="product-detail-actions">
+                <label for="qty">Kiekis:</label>
+                <input type="number" id="qty" name="qty" min="1" max="{{ product.in_stock }}" value="1" required>
+                <button type="submit" class="btn btn-primary btn-cart">
+                    <span class="icon-cart"></span> Į krepšelį
+                </button>
+            </form>
         </div>
     </div>
 
     <!-- Atsiliepimai -->
-    <div class="product-detail-reviews mt-5">
-        <h3 class="mb-3">Atsiliepimai</h3>
-        {% if reviews and reviews|length > 0 %}
-            {% for review in reviews %}
-                <div class="review-card mb-3">
+    <div class="product-detail-reviews">
+        <h3>Atsiliepimai</h3>
+        {% if product.reviews %}
+            {% for review in product.reviews %}
+                <div class="review-card">
                     <div class="review-header">
-                        <span class="review-username"><strong>{{ review.user.username }}</strong></span>
-                        <span class="review-date ms-2">{{ review.created_at.strftime('%Y-%m-%d') }}</span>
-                        <span class="review-rating ms-2" aria-label="Įvertinimas">
+                        <span class="review-username">{{ review.username }}</span>
+                        <span class="review-date">{{ review.date.strftime('%Y-%m-%d') }}</span>
+                        <span class="review-rating">
                             {% for i in range(1, 6) %}
                                 {% if i <= review.rating %}
-                                    <span class="star filled" aria-hidden="true">&#9733;</span>
+                                    <span class="star filled">&#9733;</span>
                                 {% else %}
-                                    <span class="star" aria-hidden="true">&#9734;</span>
+                                    <span class="star">&#9734;</span>
                                 {% endif %}
                             {% endfor %}
                         </span>
                     </div>
-                    <div class="review-body mt-1">
-                        {{ review.comment or "Be komentaro." }}
+                    <div class="review-body">
+                        {{ review.text }}
                     </div>
                 </div>
             {% endfor %}
         {% else %}
             <div class="no-reviews">Kol kas nėra atsiliepimų apie šią prekę.</div>
         {% endif %}
+        <a href="{{ url_for('add_review', product_id=product.id) }}" class="btn btn-secondary btn-add-review">Palikti atsiliepimą</a>
     </div>
 </div>
 {% endblock %}

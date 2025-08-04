@@ -17,6 +17,3 @@ class CartUpdateForm(FlaskForm):
         NumberRange(min=1, max=100, message="Kiekis turi būti tarp 1 ir 100.")
     ])
     submit = SubmitField('Atnaujinti kiekį')
-
-class CartClearForm(FlaskForm):
-    submit = SubmitField('Išvalyti krepšelį')
