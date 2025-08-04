@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block title %}401 - Prisijungimas būtinas{% endblock %}
+
+{% block content %}
+<main class="container error-container">
+    <section class="error-card text-center">
+        <img src="{{ url_for('static', filename='images/icons/401.svg') }}" alt="401 klaidos iliustracija" class="error-img" loading="lazy">
+        
+        <h1 class="error-title">Prisijungimas reikalingas</h1>
+        <p class="error-message">
+            Norėdami pasiekti šį puslapį, turite būti prisijungę.<br>
+            Jei jau turite paskyrą, <a href="{{ url_for('auth_bp.login') }}" class="error-link">prisijunkite</a>.<br>
+            Neturite paskyros? <a href="{{ url_for('auth_bp.register') }}" class="error-link">Užsiregistruokite čia</a>.
+        </p>
+
+        <a href="{{ url_for('auth_bp.login') }}" class="btn btn-primary error-btn">Prisijungti</a>
+    </section>
+</main>
+{% endblock %}

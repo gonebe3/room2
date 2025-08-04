@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block title %}Nuolaidų valdymas{% endblock %}
+
+{% block content %}
+<div class="container admin-discounts-container">
+    <h2 class="admin-discounts-title">Nuolaidų valdymas</h2>
+
+    <!-- Pridėti naują nuolaidą -->
+    <div class="admin-discounts-add-form-wrap">
+        <form method="POST" action="{{ url_for('admin_add_discount') }}" class="admin-discounts-add-form">
+            <input type="text" name="code" placeholder="Nuolaidos kodas" maxlength="32" required>
+            <input type="number" name="percent" placeholder="%" min="1" max="100" required>
+            <select name="product_id">
+                <option value="">Visoms prekėms</option>
+                {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.title }}</option>
+                {% endfor %}
+            </select>
+            <input type="date" name="expires" required>
+            <button type="submit" class="btn btn-primary">Pridėti</button>
+        </form>
+    </div>
+
+    <div class="admin-discounts-table-wrap">
+        <table class="admin-discounts-table">
+            <thead>
+                <tr>
+                    <th>Kodas</th>
+                    <th>%</th>
+                    <th>Prekė</th>
+                    <th>Galioja iki</th>
+                    <th>Aktyvi</th>
+                    <th>Veiksmai</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for discount in discounts %}
+                <tr>
+                    <td>{{ discount.code }}</td>
+                    <td>{{ discount.percent }}%</td>
+                    <td>
+                        {% if discount.product %}
+                            {{ discount.product.title }}
+                        {% else %}
+                            Visoms prekėms
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if discount.expires %}
+                            {{ discount.expires.strftime('%Y-%m-%d') }}
+                        {% else %}
+                            Neribota
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if discount.active %}
+                            <span class="discount-active-yes">Taip</span>
+                        {% else %}
+                            <span class="discount-active-no">Ne</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_toggle_discount', discount_id=discount.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-link btn-small" title="Įjungti/išjungti">
+                                {% if discount.active %}
+                                    <img src="{{ url_for('static', filename='images/icons/eye-off.svg') }}" alt="Išjungti" class="icon-table">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/icons/eye.svg') }}" alt="Įjungti" class="icon-table">
+                                {% endif %}
+                            </button>
+                        </form>
+                        <a href="{{ url_for('admin_edit_discount', discount_id=discount.id) }}" class="btn btn-link btn-small" title="Redaguoti">
+                            <img src="{{ url_for('static', filename='images/icons/edit.svg') }}" alt="Redaguoti" class="icon-table">
+                        </a>
+                        <form method="POST" action="{{ url_for('admin_delete_discount', discount_id=discount.id) }}" style="display:inline;" onsubmit="return confirm('Ar tikrai norite ištrinti šią nuolaidą?');">
+                            <button type="submit" class="btn btn-danger btn-small" title="Trinti">
+                                <img src="{{ url_for('static', filename='images/icons/trash.svg') }}" alt="Trinti" class="icon-table">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="admin-discounts-empty">Nuolaidų nėra.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block title %}Admino valdymo skydas{% endblock %}
+
+{% block content %}
+<div class="container admin-dashboard-container">
+    <h2 class="admin-dashboard-title">Valdymo skydas</h2>
+
+    <div class="admin-dashboard-cards">
+        <!-- Naudotojai -->
+        <div class="admin-card">
+            <div class="admin-card-icon admin-card-users">
+                <img src="{{ url_for('static', filename='images/icons/user.svg') }}" alt="Naudotojai">
+            </div>
+            <div class="admin-card-title">Naudotojai</div>
+            <div class="admin-card-value">{{ stats.users_count }}</div>
+            <a href="{{ url_for('admin.user_list') }}" class="btn btn-admin">Redaguoti</a>
+        </div>
+        <!-- Kategorijos -->
+        <div class="admin-card">
+            <div class="admin-card-icon admin-card-categories">
+                <img src="{{ url_for('static', filename='images/icons/category.svg') }}" alt="Kategorijos">
+            </div>
+            <div class="admin-card-title">Kategorijos</div>
+            <div class="admin-card-value">{{ stats.categories_count if stats.categories_count is defined else '-' }}</div>
+            <a href="{{ url_for('admin.category_list') }}" class="btn btn-admin">Redaguoti</a>
+        </div>
+        <!-- Prekės -->
+        <div class="admin-card">
+            <div class="admin-card-icon admin-card-products">
+                <img src="{{ url_for('static', filename='images/icons/shopping-bag.svg') }}" alt="Prekės">
+            </div>
+            <div class="admin-card-title">Prekės</div>
+            <div class="admin-card-value">{{ stats.products_count }}</div>
+            <a href="{{ url_for('admin.product_list') }}" class="btn btn-admin">Redaguoti</a>
+        </div>
+        <!-- Užsakymai -->
+        <div class="admin-card">
+            <div class="admin-card-icon admin-card-orders">
+                <img src="{{ url_for('static', filename='images/icons/box.svg') }}" alt="Užsakymai">
+            </div>
+            <div class="admin-card-title">Užsakymai</div>
+            <div class="admin-card-value">{{ stats.orders_count }}</div>
+            <a href="{{ url_for('admin.order_list') }}" class="btn btn-admin">Redaguoti</a>
+        </div>
+        <!-- Nuolaidos -->
+        <div class="admin-card">
+            <div class="admin-card-icon admin-card-discounts">
+                <img src="{{ url_for('static', filename='images/icons/discount.svg') }}" alt="Nuolaidos">
+            </div>
+            <div class="admin-card-title">Nuolaidos</div>
+            <div class="admin-card-value">{{ stats.discounts_count }}</div>
+            <a href="{{ url_for('admin_discounts.list_discounts') }}" class="btn btn-admin">Redaguoti nuolaidas</a>
+        </div>
+    </div>
+
+    <div class="admin-dashboard-summary">
+        <div class="admin-summary-block">
+            <div class="admin-summary-title">Šiandien parduota</div>
+            <div class="admin-summary-value">{{ stats.today_sales_count }}</div>
+            <div class="admin-summary-label">užsakymų</div>
+        </div>
+        <div class="admin-summary-block">
+            <div class="admin-summary-title">Šio mėnesio apyvarta</div>
+            <div class="admin-summary-value">{{ stats.month_revenue }} €</div>
+        </div>
+        <div class="admin-summary-block">
+            <div class="admin-summary-title">Populiariausia prekė</div>
+            <div class="admin-summary-value">{{ stats.top_product_name or '-' }}</div>
+        </div>
+        <div class="admin-summary-block">
+            <div class="admin-summary-title">Geriausias klientas</div>
+            <div class="admin-summary-value">{{ stats.top_client_name or '-' }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

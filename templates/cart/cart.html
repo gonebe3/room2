@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block title %}Krepšelis{% endblock %}
+
+{% block content %}
+<div class="container cart-container">
+    <h2 class="cart-title">Jūsų krepšelis</h2>
+    {% if cart_items and cart_items|length > 0 %}
+        <div class="cart-swiper-block">
+            <div class="swiper mySwiper cart-swiper">
+                <div class="swiper-wrapper">
+                    {% for item in cart_items %}
+                    <div class="swiper-slide">
+                        <div class="cart-swiper-card">
+                            <img src="{{ url_for('static', filename='uploads/' ~ (item.product.image_filename or 'default.png')) }}"
+                                 alt="{{ item.product.name }}" class="cart-swiper-img">
+                            <div class="cart-swiper-title">{{ item.product.name }}</div>
+                            <div class="cart-swiper-price">
+                                {% if item.product.discount_price %}
+                                    <span class="price-old">{{ item.product.price|round(2) }}€</span>
+                                    <span class="price-new">{{ item.product.discount_price|round(2) }}€</span>
+                                {% else %}
+                                    <span class="price-new">{{ item.product.price|round(2) }}€</span>
+                                {% endif %}
+                            </div>
+                            <div class="cart-swiper-qty">Kiekis: {{ item.quantity }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <h3>Krepšelio suvestinė</h3>
+            <div class="cart-summary-row">
+                <span>Iš viso:</span>
+                <span class="cart-total">{{ total|round(2) }}€</span>
+            </div>
+            <div class="cart-summary-row">
+                <span>Nuolaidos:</span>
+                <span class="cart-discount">-{{ total_discount|round(2) }}€</span>
+            </div>
+            <div class="cart-summary-row cart-summary-final">
+                <span>Mokėti:</span>
+                <span class="cart-final">{{ total_final|round(2) }}€</span>
+            </div>
+            <form method="POST" action="{{ url_for('cart.clear_user_cart') }}">
+                {{ clear_form.hidden_tag() }}
+                {{ clear_form.submit(class_="btn btn-danger btn-block") }}
+            </form>
+            <a href="{{ url_for('order.checkout') }}" class="btn btn-primary btn-block mt-3">Tęsti pirkimą</a>
+        </div>
+    {% else %}
+        <div class="cart-empty">
+            <img src="{{ url_for('static', filename='images/icons/cart.svg') }}" class="cart-empty-icon" alt="Krepšelis tuščias">
+            <p>Jūsų krepšelis tuščias.</p>
+            <a href="{{ url_for('product.product_list') }}" class="btn btn-secondary">Grįžti į prekių katalogą</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
