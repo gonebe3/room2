@@ -37,10 +37,6 @@ class Config:
     # Galimi papildomi nustatymai
     ADMINS = [email.strip() for email in os.environ.get('ADMINS', '').split(',') if email.strip()]
 
-    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
-    STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-    DOMAIN_URL = os.environ.get('DOMAIN_URL', 'http://localhost:5000')
-
 class DevelopmentConfig(Config):
     DEBUG = True
 

@@ -1,8 +1,0 @@
-Flask
-Flask-WTF
-Flask-SQLAlchemy
-Flask-Mail
-Flask-Login
-Flask-Migrate
-Flask-Cache
-stripe>=8.0.0
