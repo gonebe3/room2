@@ -28,14 +28,8 @@ class Config:
     CACHE_TYPE = os.environ.get('CACHE_TYPE', 'SimpleCache')
     CACHE_DEFAULT_TIMEOUT = int(os.environ.get('CACHE_DEFAULT_TIMEOUT', 300))
 
-    # Flask-Admin (galima papildomai konfigūruoti, jei reikia)
-    ADMIN_SWATCH = os.environ.get('ADMIN_SWATCH', 'cerulean')
-
     # Leidžiami failų tipai nuotraukoms (naudojant Flask-Uploads)
     ALLOWED_IMAGE_EXTENSIONS = os.environ.get('ALLOWED_IMAGE_EXTENSIONS', 'jpg,jpeg,png,gif,webp').split(',')
-
-    # Galimi papildomi nustatymai
-    ADMINS = [email.strip() for email in os.environ.get('ADMINS', '').split(',') if email.strip()]
 
     STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
@@ -47,10 +41,6 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
 
-class TestingConfig(Config):
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    WTF_CSRF_ENABLED = False
 
 # Jei reikia – naudok taip:
 # app.config.from_object('config.DevelopmentConfig')

@@ -1,11 +1,14 @@
 from dotenv import load_dotenv
 load_dotenv()
+import os
 
 from flask import Flask
-from config import Config
+from config import ProductionConfig, DevelopmentConfig
 
-# Extensions – tik objektai, be .init_app()
-from app.utils.extensions import db, login_manager, mail, csrf, migrate, cache, admin, photos, init_stripe
+
+# Extensions 
+from app.utils.extensions import db, login_manager, mail, csrf, migrate, cache, photos, init_stripe
+from app.utils.context_processors import inject_categories, inject_now
 
 # --- Modelių importai MIGRACIJOMS ---
 import app.models.user
@@ -18,23 +21,19 @@ import app.models.order_item
 import app.models.category
 import app.models.login_attempt
 import app.models.payment_attempt
-# --- Modelių importų BLOKAS pabaiga ---
+
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
 
-    from datetime import datetime
+    config_name = os.environ.get('FLASK_CONFIG', 'DevelopmentConfig')
+    if config_name == 'ProductionConfig':
+        app.config.from_object(ProductionConfig)
+    else:
+        app.config.from_object(DevelopmentConfig)
 
-    @app.context_processor
-    def inject_categories():
-        from app.models.category import Category
-        categories = Category.query.order_by(Category.name).all()
-        return dict(categories=categories)
-
-    @app.context_processor
-    def inject_now():
-        return {'now': datetime.now()}
+    app.context_processor(inject_now)
+    app.context_processor(inject_categories)
 
     # Inicializuojame visus extension’us
     db.init_app(app)
@@ -43,7 +42,6 @@ def create_app():
     csrf.init_app(app)
     migrate.init_app(app, db)
     cache.init_app(app, config={'CACHE_TYPE': 'SimpleCache'})
-    admin.init_app(app)
     init_stripe(app)
     if photos:
         from flask_uploads import configure_uploads, patch_request_class
@@ -62,6 +60,7 @@ def create_app():
     from app.routes.user_routes import user_bp
     from app.routes.main_routes import main_bp
     from app.routes.stripe_routes import stripe_bp
+    from app.routes.error_routes import errors_bp
 
 
     # Registruok blueprint'us tik vieną kartą (jokių dublikatų)
@@ -75,15 +74,8 @@ def create_app():
     app.register_blueprint(user_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(stripe_bp)
-
-
-    # Error handleriai, jei yra
-    try:
-        from app.routes.errors import register_error_handlers
-        register_error_handlers(app)
-    except ImportError:
-        pass
-
+    app.register_blueprint(errors_bp)
+    
     return app
 
 if __name__ == "__main__":
