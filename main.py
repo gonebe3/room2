@@ -56,7 +56,6 @@ def create_app():
         configure_uploads(app, photos)
         patch_request_class(app, size=5 * 1024 * 1024)  # 5 MB limitas
 
-    # Blueprint’ų registracija (importai viduje funkcijos!)
     from app.routes.admin_routes import admin_bp
     from app.routes.auth_routes import auth_bp
     from app.routes.cart_routes import cart_bp
