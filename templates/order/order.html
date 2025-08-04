@@ -4,7 +4,6 @@
 {% block content %}
 <div class="container orders-container">
     <h2 class="orders-title">Jūsų užsakymai</h2>
-
     <div class="orders-table-wrap">
         <table class="orders-table">
             <thead>
@@ -21,8 +20,8 @@
                 {% for order in orders %}
                 <tr>
                     <td>{{ order.id }}</td>
-                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ order.total_price|round(2) }}</td>
+                    <td>{{ order.created_on.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ order.total_amount|round(2) }}</td>
                     <td>
                         {% if order.status == 'paid' %}
                             <span class="order-status-paid">Apmokėta</span>
@@ -36,7 +35,7 @@
                     </td>
                     <td>{{ order.item_count }}</td>
                     <td>
-                        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-link btn-small" title="Peržiūrėti">
+                        <a href="{{ url_for('order.order_detail', order_id=order.id) }}" class="btn btn-link btn-small" title="Peržiūrėti">
                             <img src="{{ url_for('static', filename='images/icons/search.svg') }}" alt="Peržiūrėti" class="icon-table">
                         </a>
                     </td>

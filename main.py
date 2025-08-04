@@ -6,14 +6,9 @@ from flask import Flask
 from config import ProductionConfig, DevelopmentConfig
 
 
-
 # Extensions 
 from app.utils.extensions import db, login_manager, mail, csrf, migrate, cache, photos, init_stripe
 from app.utils.context_processors import inject_categories, inject_now
-
-# Extensions – tik objektai, be .init_app()
-from app.utils.extensions import db, login_manager, mail, csrf, migrate, cache, admin, photos
-
 
 # --- Modelių importai MIGRACIJOMS ---
 import app.models.user
@@ -23,7 +18,6 @@ import app.models.order
 import app.models.review
 import app.models.discount
 import app.models.order_item
-
 import app.models.category
 import app.models.login_attempt
 import app.models.payment_attempt
@@ -31,7 +25,6 @@ import app.models.payment_attempt
 
 def create_app():
     app = Flask(__name__)
-
 
     config_name = os.environ.get('FLASK_CONFIG', 'DevelopmentConfig')
     if config_name == 'ProductionConfig':
@@ -50,12 +43,13 @@ def create_app():
     migrate.init_app(app, db)
     cache.init_app(app, config={'CACHE_TYPE': 'SimpleCache'})
     init_stripe(app)
-
     if photos:
         from flask_uploads import configure_uploads, patch_request_class
         configure_uploads(app, photos)
         patch_request_class(app, size=5 * 1024 * 1024)  # 5 MB limitas
 
+    # -------- BLUEPRINT'Ų REGISTRACIJA --------
+    # SVARBU: blueprint'us importuok ir registruok TIK VIENĄ KARTĄ!
     from app.routes.admin_routes import admin_bp
     from app.routes.auth_routes import auth_bp
     from app.routes.cart_routes import cart_bp
@@ -69,6 +63,7 @@ def create_app():
     from app.routes.error_routes import errors_bp
 
 
+    # Registruok blueprint'us tik vieną kartą (jokių dublikatų)
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(cart_bp)

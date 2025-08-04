@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %}Naudotojų sąrašas{% endblock %}
+
+{% block content %}
+<div class="container admin-users-container">
+    <h2 class="admin-users-title">Naudotojų sąrašas</h2>
+
+    <!-- Mygtukas pridėti naują naudotoją -->
+    <a href="{{ url_for('admin.add_user') }}" class="btn btn-admin-add">+ Pridėti naudotoją</a>
+
+    <!-- Jei nori – gali įdėti paiešką -->
+    {#
+    <form method="get" action="{{ url_for('admin.user_list') }}" class="admin-users-search-form">
+        <input type="text" name="q" placeholder="Ieškoti pagal vardą ar el. paštą..." value="{{ request.args.get('q', '') }}">
+        <button type="submit" class="btn btn-primary">Ieškoti</button>
+    </form>
+    #}
+
+    <div class="admin-users-table-wrap">
+        <table class="admin-users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Vardas</th>
+                    <th>El. paštas</th>
+                    <th>Rolė</th>
+                    <th>Balansas</th>
+                    <th>Aktyvus</th>
+                    <th>Sukurtas</th>
+                    <th>Veiksmai</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>{{ user.balance|round(2) }} €</td>
+                    <td>
+                        {% if user.is_active %}
+                            Taip
+                        {% else %}
+                            Ne
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.created_on %}
+                            {{ user.created_on.strftime('%Y-%m-%d') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-link btn-small">
+                            Peržiūrėti
+                        </a>
+                        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-link btn-small">
+                            Redaguoti
+                        </a>
+                        <form method="POST" action="{{ url_for('admin.delete_user_route', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Ar tikrai norite ištrinti šį vartotoją?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-small">
+                                Ištrinti
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="admin-users-empty">Nėra vartotojų.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
