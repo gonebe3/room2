@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}403 - Prieiga draudžiama{% endblock %}
+
+{% block content %}
+<main class="container error-container">
+    <section class="error-card text-center">
+        <img src="{{ url_for('static', filename='images/icons/403.svg') }}" alt="403 klaidos iliustracija" class="error-img" loading="lazy">
+        
+        <h1 class="error-title">Prieiga draudžiama</h1>
+        <p class="error-message">
+            Neturite pakankamų teisių pasiekti šį puslapį.<br>
+            Jei manote, kad tai klaida, susisiekite su mumis arba grįžkite į <a href="{{ url_for('main_bp.home') }}" class="error-link">pagrindinį puslapį</a>.
+        </p>
+
+        <a href="{{ url_for('main_bp.home') }}" class="btn btn-primary error-btn">Grįžti į pradžią</a>
+    </section>
+</main>
+{% endblock %}

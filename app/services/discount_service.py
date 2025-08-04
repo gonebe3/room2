@@ -35,6 +35,54 @@ def create_discount(form):
 
 def update_discount(discount, form):
     try:
+
+        db_discount = db.session.get(Discount, discount.id)
+        if not db_discount:
+            return False
+
+        # Paruošiame valid_from su laiko zona
+        vf = form.valid_from.data
+        if isinstance(vf, date) and not isinstance(vf, datetime):
+            valid_from = datetime(vf.year, vf.month, vf.day, tzinfo=timezone.utc)
+        else:
+            valid_from = vf
+        # Paruošiame valid_until su laiko zona
+        vu = form.valid_until.data
+        if isinstance(vu, date) and not isinstance(vu, datetime):
+            valid_until = datetime(vu.year, vu.month, vu.day, tzinfo=timezone.utc)
+        else:
+            valid_until = vu
+
+        # Nustatymai pagal tipą
+        d_type = form.discount_type.data
+        if d_type == 'percent':
+            value = form.percentage.data
+        elif d_type == 'fixed':
+            value = form.value.data
+        else:
+            value = form.value.data or form.percentage.data
+
+        db_discount.code = form.code.data
+        db_discount.description = form.description.data
+        db_discount.discount_type = d_type
+        db_discount.value = value
+        db_discount.min_purchase = form.min_purchase.data
+        db_discount.loyalty_min_orders = form.loyalty_min_orders.data
+        db_discount.loyalty_min_amount = form.loyalty_min_amount.data
+        db_discount.loyalty_period_days = form.loyalty_period_days.data
+        db_discount.usage_limit = form.usage_limit.data
+        db_discount.valid_from = valid_from
+        db_discount.valid_until = valid_until
+        db_discount.modified_by = modified_by
+
+        db.session.commit()
+        return True
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Error updating discount: {e}")
+        return False
+
+=======
         with db.session() as session:
             db_discount = session.get(Discount, discount.id)
             if not db_discount:
@@ -50,6 +98,7 @@ def update_discount(discount, form):
     except SQLAlchemyError as e:
         print(f"Error updating discount: {e}")
         return False
+
 
 def activate_discount(discount):
     try:

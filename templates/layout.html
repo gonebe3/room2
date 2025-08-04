@@ -60,13 +60,35 @@
         <!-- NAVBAR -->
         <nav class="main-navbar">
             <ul>
-                <li><a href="{{ url_for('product.product_list') }}" class="{% if request.endpoint=='product.product_list' %}active{% endif %}">
-                    <img src="{{ url_for('static', filename='images/icons/star.svg') }}" class="icon icon-star" alt="Prekių katalogas">
-                    Prekių katalogas
-                </a></li>
-                <li><a href="#"><img src="{{ url_for('static', filename='images/icons/filter.svg') }}" class="icon icon-filter" alt="Filtruoti"> Filtruoti</a></li>
-                <li><a href="#"><img src="{{ url_for('static', filename='images/icons/discount.svg') }}" class="icon icon-discount" alt="Akcijos"> Akcijos</a></li>
-                <li><a href="#"><img src="{{ url_for('static', filename='images/icons/settings.svg') }}" class="icon icon-settings" alt="Nustatymai"> Nustatymai</a></li>
+
+                <li>
+                    <a href="{{ url_for('product.product_list') }}" class="{% if request.endpoint=='product.product_list' %}active{% endif %}">
+                        <img src="{{ url_for('static', filename='images/icons/star.svg') }}" class="icon icon-star" alt="Prekių katalogas">
+                        Prekių katalogas
+                    </a>
+                </li>
+                <li class="categories-dropdown">
+                    <a href="#" id="categories-btn">
+                        <img src="{{ url_for('static', filename='images/icons/category.svg') }}" class="icon icon-category" alt="Kategorijos"> Kategorijos
+                    </a>
+                    <div class="categories-popup">
+                        <ul>
+                            {% for category in categories %}
+                                <li>
+                                    <a href="{{ url_for('product.products_by_category', category_id=category.id) }}">{{ category.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                    <li>
+                        <a href="{{ url_for('admin.dashboard') }}">
+                            <img src="{{ url_for('static', filename='images/icons/settings.svg') }}" class="icon icon-settings" alt="Admin panelė">
+                            Admin panelė
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
             <!-- PAIEŠKOS FORMA -->
             <form action="{{ url_for('product.product_list') }}" method="get" class="search-form">
