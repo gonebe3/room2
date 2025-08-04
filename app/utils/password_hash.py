@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def hash_password(password: str) -> str:
     """
     Sugeneruoja saugų hash'ą slaptažodžiui.
-    Naudoja werkzeug.security (rekomenduojama Flask ekosistemoje).
+    Naudoja werkzeug.security .
     """
     return generate_password_hash(password, method="pbkdf2:sha256", salt_length=16)
 

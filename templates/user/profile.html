@@ -5,7 +5,6 @@
 <div class="container profile-container">
     <h2 class="profile-title">Mano profilis</h2>
 
-    <!-- Profilio informacija -->
     <div class="profile-card">
         <div class="profile-header">
             <img src="{{ url_for('static', filename='images/icons/user.svg') }}" class="profile-avatar" alt="Vartotojas">
@@ -13,36 +12,32 @@
                 <div class="profile-username">{{ user.username }}</div>
                 <div class="profile-email">{{ user.email }}</div>
             </div>
-            <a href="{{ url_for('edit_profile') }}" class="btn btn-secondary profile-edit-btn" title="Redaguoti profilį">
-                <span class="icon-edit"></span> Redaguoti
+            <!-- Atsijungti paprastas linkas -->
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-logout profile-logout-btn" title="Atsijungti">
+                <span class="icon-logout"></span>
             </a>
-            <form method="POST" action="{{ url_for('logout') }}">
-                <button type="submit" class="btn btn-logout profile-logout-btn" title="Atsijungti">
-                    <span class="icon-logout"></span>
-                </button>
-            </form>
         </div>
     </div>
 
-    <!-- Balansas -->
     <div class="profile-balance-card">
         <div class="profile-balance-label">Balansas:</div>
-        <div class="profile-balance-amount">{{ user.balance }} €</div>
-        <a href="{{ url_for('add_balance') }}" class="btn btn-primary profile-balance-btn">Papildyti balansą</a>
+        <div class="profile-balance-amount">
+            {{ user.balance|default(0)|float|round(2) }} €
+        </div>
+        <a href="{{ url_for('user.balance') }}" class="btn btn-primary profile-balance-btn">Papildyti balansą</a>
     </div>
 
-    <!-- Užsakymų istorija -->
     <div class="profile-orders-section">
         <h3 class="profile-orders-title">Mano užsakymai</h3>
-        {% if orders %}
+        {% if orders and orders|length > 0 %}
         <table class="profile-orders-table">
             <thead>
                 <tr>
                     <th>Užsakymo Nr.</th>
                     <th>Data</th>
-                    <th>Kiekis</th>
+                    <th>Prekių kiekis</th>
                     <th>Suma</th>
-                    <th>Statusas</th>
+                    <th>Būsena</th>
                     <th></th>
                 </tr>
             </thead>
@@ -50,18 +45,53 @@
                 {% for order in orders %}
                 <tr>
                     <td>#{{ order.id }}</td>
-                    <td>{{ order.date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ order.total_items }}</td>
-                    <td>{{ order.total_price }} €</td>
+                    <td>
+                        {{ order.created_on.strftime('%Y-%m-%d') if order.created_on else (order.created_at.strftime('%Y-%m-%d') if order.created_at else '-') }}
+                    </td>
+                    <td>
+                        {{ order.total_items if order.total_items is defined else order.item_count if order.item_count is defined else order.order_items|length }}
+                    </td>
+                    <td>
+                        {{ order.total_amount|default(0)|float|round(2) }} €
+                    </td>
                     <td>
                         <span class="order-status order-status-{{ order.status }}">
-                            {{ order.status|capitalize }}
+                            {% if order.status == 'pending' %}Laukia apmokėjimo
+                            {% elif order.status == 'paid' %}Apmokėtas
+                            {% elif order.status == 'shipped' %}Išsiųstas
+                            {% elif order.status == 'completed' %}Įvykdytas
+                            {% elif order.status == 'canceled' %}Atšauktas
+                            {% else %}{{ order.status|capitalize }}
+                            {% endif %}
                         </span>
                     </td>
                     <td>
-                        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-link">Peržiūrėti</a>
+                        <a href="{{ url_for('order.order_detail', order_id=order.id) }}" class="btn btn-link btn-xsmall">Peržiūrėti</a>
                     </td>
                 </tr>
+                {% if order.order_items %}
+                <tr>
+                    <td colspan="6" class="profile-order-products-row">
+                        <strong>Užsakymo produktai:</strong>
+                        <ul class="profile-order-products-list">
+                            {% for item in order.order_items %}
+                            <li>
+                                {{ item.product.name if item.product and item.product.name else "Nežinoma prekė" }}
+                                &times; {{ item.quantity }}
+                                {% if order.status == 'completed' and not item.has_review %}
+                                    <a href="{{ url_for('review.create_review_route', product_id=item.product_id, order_id=order.id) }}"
+                                       class="btn btn-link btn-xsmall" style="margin-left:8px;">
+                                        Palikti atsiliepimą
+                                    </a>
+                                {% elif item.has_review %}
+                                    <span class="profile-review-done">Atsiliepimas paliktas</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>

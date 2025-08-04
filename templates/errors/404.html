@@ -1,16 +1,18 @@
 {% extends "layout.html" %}
-{% block title %}Puslapis nerastas{% endblock %}
+{% block title %}404 - Puslapis nerastas{% endblock %}
 
 {% block content %}
-<div class="container error-container">
-    <div class="error-card">
-        <img src="{{ url_for('static', filename='images/icons/404.svg') }}" alt="404" class="error-img">
-        <h2 class="error-title">Puslapis nerastas (404)</h2>
+<main class="container error-container">
+    <section class="error-card text-center">
+        <img src="{{ url_for('static', filename='images/icons/404.svg') }}" alt="404 klaidos iliustracija" class="error-img" loading="lazy">
+        
+        <h1 class="error-title">Puslapis nerastas</h1>
         <p class="error-message">
-            Oi! Atrodo, kad šis puslapis neegzistuoja.<br>
-            Patikrinkite adresą arba grįžkite į <a href="{{ url_for('home') }}" class="error-link">pagrindinį puslapį</a>.
+            Atsiprašome, bet ieškomas puslapis neegzistuoja arba buvo pašalintas.<br>
+            Galite grįžti į <a href="{{ url_for('main_bp.home') }}" class="error-link">pagrindinį puslapį</a> ir tęsti naršymą.
         </p>
-        <a href="{{ url_for('home') }}" class="btn btn-primary error-btn">Į pradžią</a>
-    </div>
-</div>
+
+        <a href="{{ url_for('main_bp.home') }}" class="btn btn-primary error-btn">Grįžti į pradžią</a>
+    </section>
+</main>
 {% endblock %}

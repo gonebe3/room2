@@ -11,102 +11,106 @@ from app.services.discount_service import (
     deactivate_discount
 )
 
-discount_bp = Blueprint('discount', __name__, url_prefix='/discounts')
+# Sukuriame blueprintą admin nuolaidų valdymui
+discount_bp = Blueprint(
+    'admin_discounts', __name__, url_prefix='/admin/discounts'
+)
 
-# Dekoratorius tik admin teisių vartotojui
+# Apribojimas: tik administratoriams
+from functools import wraps
+
 def admin_required(func):
-    from functools import wraps
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if not current_user.is_authenticated or not getattr(current_user, "is_admin", False):
-            flash("Prieiga tik administratoriams.", "danger")
+        if not current_user.is_authenticated or not getattr(current_user, 'is_admin', False):
+            flash('Prieiga tik administratoriams.', 'danger')
             return redirect(url_for('auth.login'))
         return func(*args, **kwargs)
     return decorated_view
 
-# Visų nuolaidų sąrašas
-@discount_bp.route('/')
+# 1. Nuolaidų sąrašas
+@discount_bp.route('/', methods=['GET'])
 @login_required
 @admin_required
 def list_discounts():
-    discounts = get_all_discounts()
-    return render_template('admin/discounts.html', discounts=discounts)
+    discounts = get_all_discounts(active_only=False)
+    return render_template('admin/discounts/list.html', discounts=discounts)
 
-# Naujos nuolaidos pridėjimas
+# 2. Pridėti naują nuolaidą
 @discount_bp.route('/add', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def add_discount():
     form = DiscountForm()
     if form.validate_on_submit():
-        result, error = create_discount(form)
-        if result:
-            flash('Nuolaida sukurta.', 'success')
-            return redirect(url_for('discount.list_discounts'))
-        else:
-            flash(error or 'Klaida kuriant nuolaidą.', 'danger')
-    return render_template('admin/add_discount.html', form=form)
+        discount = create_discount(form, created_by=current_user.id)
+        if discount:
+            flash('Nuolaida sėkmingai sukurta.', 'success')
+            return redirect(url_for('admin_discounts.list_discounts'))
+        flash('Įvyko klaida kuriant nuolaidą.', 'danger')
+    return render_template('admin/discounts/add.html', form=form, action='add')
 
-# Nuolaidos redagavimas
-@discount_bp.route('/edit/<int:discount_id>', methods=['GET', 'POST'])
+# 3. Redaguoti esamą nuolaidą
+@discount_bp.route('/<int:discount_id>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_discount(discount_id):
     discount = get_discount_by_id(discount_id)
     if not discount:
         flash('Nuolaida nerasta.', 'danger')
-        return redirect(url_for('discount.list_discounts'))
+        return redirect(url_for('admin_discounts.list_discounts'))
     form = DiscountForm(obj=discount)
     if form.validate_on_submit():
-        result, error = update_discount(discount, form)
-        if result:
+        ok = update_discount(discount, form, modified_by=current_user.id)
+        if ok:
             flash('Nuolaida atnaujinta.', 'success')
-            return redirect(url_for('discount.list_discounts'))
-        else:
-            flash(error or 'Klaida atnaujinant nuolaidą.', 'danger')
-    return render_template('admin/edit_discount.html', form=form, discount=discount)
+            return redirect(url_for('admin_discounts.list_discounts'))
+        flash('Įvyko klaida atnaujinant nuolaidą.', 'danger')
+    return render_template('admin/discounts/edit.html', form=form, action='edit', discount=discount)
 
-# Nuolaidos aktyvavimas
-@discount_bp.route('/activate/<int:discount_id>', methods=['POST'])
+# 4. Aktyvuoti nuolaidą
+@discount_bp.route('/<int:discount_id>/activate', methods=['POST'])
 @login_required
 @admin_required
 def activate_discount_route(discount_id):
-    discount = get_discount_by_id(discount_id)
-    if not discount:
-        flash('Nuolaida nerasta.', 'danger')
+    ok = activate_discount(discount_id)
+    if ok:
+        flash('Nuolaida aktyvuota.', 'success')
     else:
-        if activate_discount(discount):
-            flash('Nuolaida aktyvuota.', 'success')
-        else:
-            flash('Klaida aktyvuojant nuolaidą.', 'danger')
-    return redirect(url_for('discount.list_discounts'))
+        flash('Klaida aktyvuojant nuolaidą.', 'danger')
+    return redirect(url_for('admin_discounts.list_discounts'))
 
-# Nuolaidos deaktyvavimas
-@discount_bp.route('/deactivate/<int:discount_id>', methods=['POST'])
+# 5. Deaktyvuoti nuolaidą
+@discount_bp.route('/<int:discount_id>/deactivate', methods=['POST'])
 @login_required
 @admin_required
 def deactivate_discount_route(discount_id):
-    discount = get_discount_by_id(discount_id)
-    if not discount:
-        flash('Nuolaida nerasta.', 'danger')
+    ok = deactivate_discount(discount_id)
+    if ok:
+        flash('Nuolaida išjungta.', 'info')
     else:
-        if deactivate_discount(discount):
-            flash('Nuolaida išjungta.', 'info')
-        else:
-            flash('Klaida išjungiant nuolaidą.', 'danger')
-    return redirect(url_for('discount.list_discounts'))
+        flash('Klaida išjungiant nuolaidą.', 'danger')
+    return redirect(url_for('admin_discounts.list_discounts'))
 
-# Nuolaidos ištrynimas (hard-delete)
-@discount_bp.route('/delete/<int:discount_id>', methods=['POST'])
+# 6. Ištrinti nuolaidą
+@discount_bp.route('/<int:discount_id>/delete', methods=['POST'])
 @login_required
 @admin_required
 def delete_discount_route(discount_id):
+    ok = delete_discount(discount_id)
+    if ok:
+        flash('Nuolaida ištrinta.', 'success')
+    else:
+        flash('Klaida trinant nuolaidą.', 'danger')
+    return redirect(url_for('admin_discounts.list_discounts'))
+
+# Nuolaidos detalizacijos puslapis
+@discount_bp.route('/<int:discount_id>', methods=['GET'])
+@login_required
+@admin_required
+def detail_discount(discount_id):
     discount = get_discount_by_id(discount_id)
     if not discount:
         flash('Nuolaida nerasta.', 'danger')
-    else:
-        if delete_discount(discount):
-            flash('Nuolaida ištrinta.', 'success')
-        else:
-            flash('Klaida trinant nuolaidą.', 'danger')
-    return redirect(url_for('discount.list_discounts'))
+        return redirect(url_for('admin_discounts.list_discounts'))
+    return render_template('admin/discounts/detail.html', discount=discount)
