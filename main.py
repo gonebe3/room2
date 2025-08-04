@@ -47,7 +47,7 @@ def create_app():
         from flask_uploads import configure_uploads, patch_request_class
         configure_uploads(app, photos)
         patch_request_class(app, size=5 * 1024 * 1024)  # 5 MB limitas
-
+#komentaras
     # -------- BLUEPRINT'Ų REGISTRACIJA --------
     # SVARBU: blueprint'us importuok ir registruok TIK VIENĄ KARTĄ!
     from app.routes.admin_routes import admin_bp
