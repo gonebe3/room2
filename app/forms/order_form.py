@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 
 class OrderForm(FlaskForm):
     shipping_address = TextAreaField(
@@ -23,6 +23,14 @@ class OrderForm(FlaskForm):
             DataRequired(message="Įveskite telefono numerį."),
             Length(max=30)
         ]
+    )
+    discount_code = StringField(
+        'Nuolaidos kodas',
+        validators=[
+            Optional(),
+            Length(max=32, message="Kodas per ilgas (maks. 32 simboliai).")
+        ],
+        render_kw={"placeholder": "Įveskite nuolaidos kodą"}
     )
     total_price = DecimalField(
         'Suma (€)',

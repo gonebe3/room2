@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+{% block title %}Užsakymo informacija{% endblock %}
+
+{% block content %}
+<div class="container admin-orders-detail-container gradient-bg">
+    <h2 class="admin-orders-title">Užsakymo informacija</h2>
+
+    <div class="admin-order-detail-card styled-card">
+        <table class="admin-order-detail-table">
+            <tr>
+                <th class="th-label">ID:</th>
+                <td>{{ order.id }}</td>
+            </tr>
+            <tr>
+                <th class="th-label">Vartotojas:</th>
+                <td>
+                    {% if order.user %}
+                        {{ order.user.username }}<br>
+                        <span class="order-email">{{ order.user.email }}</span>
+                    {% else %}
+                        <em>Nežinomas</em>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th class="th-label">Suma (€):</th>
+                <td>{{ order.total_amount|round(2) }}</td>
+            </tr>
+            <tr>
+                <th class="th-label">Būsena:</th>
+                <td>
+                    {% if order.status == 'pending' %}Laukia apmokėjimo
+                    {% elif order.status == 'paid' %}Apmokėtas
+                    {% elif order.status == 'shipped' %}Išsiųstas
+                    {% elif order.status == 'completed' %}Įvykdytas
+                    {% elif order.status == 'canceled' %}Atšauktas
+                    {% else %}{{ order.status }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th class="th-label">Pristatymo adresas:</th>
+                <td>{{ order.shipping_address }}</td>
+            </tr>
+            <tr>
+                <th class="th-label">Pastabos:</th>
+                <td>{{ order.notes or '-' }}</td>
+            </tr>
+            <tr>
+                <th class="th-label">Nuolaidos ID:</th>
+                <td>{{ order.discount_id or '-' }}</td>
+            </tr>
+            <tr>
+                <th class="th-label">Sukurta:</th>
+                <td>
+                    {% if order.created_on %}
+                        {{ order.created_on.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th class="th-label">Atnaujinta:</th>
+                <td>
+                    {% if order.modified_on %}
+                        {{ order.modified_on.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th class="th-label">Ištrintas:</th>
+                <td>{% if order.is_deleted %}Taip{% else %}Ne{% endif %}</td>
+            </tr>
+        </table>
+    </div>
+
+    {% if order.order_items and order.order_items|length > 0 %}
+    <div class="admin-order-items styled-card">
+        <h4>Užsakymo prekės</h4>
+        <table class="admin-order-items-table">
+            <thead>
+                <tr>
+                    <th class="th-label">Prekės ID</th>
+                    <th class="th-label">Pavadinimas</th>
+                    <th class="th-label">Kiekis</th>
+                    <th class="th-label">Kaina (vnt.)</th>
+                    <th class="th-label">Suma (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.order_items %}
+                <tr>
+                    <td>{{ item.product_id }}</td>
+                    <td>{{ item.product.name if item.product else 'Prekė nerasta' }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price|round(2) }}</td>
+                    <td>{{ (item.price * item.quantity)|round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="admin-order-detail-actions btn-row">
+        <a href="{{ url_for('admin.edit_order', order_id=order.id) }}" class="btn btn-action btn-main">Redaguoti</a>
+        <a href="{{ url_for('admin.order_list') }}" class="btn btn-action btn-secondary">Grįžti į sąrašą</a>
+        <form method="POST" action="{{ url_for('admin.delete_order_route', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Ar tikrai norite ištrinti šį užsakymą?');">
+            <button type="submit" class="btn btn-action btn-danger">Ištrinti</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

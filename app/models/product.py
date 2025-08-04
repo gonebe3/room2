@@ -1,6 +1,7 @@
 from app.utils.extensions import db
 from datetime import datetime, timezone
 
+
 class Product(db.Model):
     __tablename__ = "products"
 
@@ -11,7 +12,10 @@ class Product(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=0)
     image_filename = db.Column(db.String(255), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
-    
+
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+    category = db.relationship("Category", back_populates="products")
+
     created_at = db.Column(
         db.DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -24,25 +28,26 @@ class Product(db.Model):
         nullable=False
     )
 
-    # Santykis su Cart modeliu
+    # Krepšelio prekės (CartItems)
     cart_items = db.relationship(
         "Cart",
         back_populates="product",
         cascade="all, delete-orphan"
     )
 
-    # Santykis su OrderItem modeliu
+    # Užsakymo prekės (OrderItems)
     order_items = db.relationship(
         "OrderItem",
         back_populates="product",
         cascade="all, delete-orphan"
     )
 
-    # Santykis su Review modeliu
+    # Atsiliepimai
     reviews = db.relationship(
         "Review",
         back_populates="product",
-        lazy=True
+        lazy='dynamic',
+        cascade="all, delete-orphan"
     )
 
     def __repr__(self):

@@ -4,15 +4,21 @@ from app.forms.order_form import OrderForm
 from app.services.order_service import (
     get_all_orders,
     get_order_by_id,
-    get_orders_by_user,     # <-- teisingas pavadinimas!
+    get_orders_by_user,
     create_order,
     update_order_status,
-    delete_order
+    delete_order,
 )
+from app.services.cart_service import (
+    get_cart_items,
+    calculate_cart_totals,
+    clear_cart,
+    get_cart_summary
+)
+from app.services.discount_service import validate_discount_code 
 
 order_bp = Blueprint('order', __name__, url_prefix='/orders')
 
-# Tik adminams (jei norite atskirti, naudokite admin blueprint)
 def admin_required(func):
     from functools import wraps
     @wraps(func)
@@ -23,14 +29,14 @@ def admin_required(func):
         return func(*args, **kwargs)
     return decorated_view
 
-# Vartotojo užsakymų sąrašas
+# --- Vartotojo užsakymų sąrašas ---
 @order_bp.route('/')
 @login_required
 def user_orders():
-    orders = get_orders_by_user(current_user.id)   # <-- PATAISYTA!
+    orders = get_orders_by_user(current_user.id)
     return render_template('order/order.html', orders=orders)
 
-# Vieno užsakymo detali peržiūra (vartotojui)
+# --- Vieno užsakymo detali peržiūra ---
 @order_bp.route('/<int:order_id>')
 @login_required
 def order_detail(order_id):
@@ -40,23 +46,67 @@ def order_detail(order_id):
         return redirect(url_for('order.user_orders'))
     return render_template('order/order_detail.html', order=order)
 
-# Užsakymo sukūrimas (checkout)
-@order_bp.route('/create', methods=['GET', 'POST'])
+# --- Užsakymo sukūrimas (CHECKOUT) ---
+@order_bp.route('/checkout', methods=['GET', 'POST'])
 @login_required
-def create_new_order():
+def checkout():
+    cart_items = get_cart_items(current_user.id)
+    if not cart_items:
+        flash("Jūsų krepšelis tuščias.", "warning")
+        return redirect(url_for('cart.view_cart'))
+
     form = OrderForm()
-    if form.validate_on_submit():
-        success, error = create_order(current_user.id, form)
-        if success:
-            flash("Užsakymas sukurtas!", "success")
-            return redirect(url_for('order.user_orders'))
-        else:
-            flash(error or "Klaida kuriant užsakymą.", "danger")
-    return render_template('order/checkout.html', form=form)
+    # Įvertiname be kodo arba pagal pateiktą kodą, jei jau buvo POST
+    if form.is_submitted():
+        action = request.form.get('action')
+        summary = get_cart_summary(cart_items, form.discount_code.data.strip() or None)
+        form.total_price.data = summary['total_final']
 
-# --- ADMIN ROUTES ---
+        if action == 'apply':
+            if summary['error']:
+                flash(summary['error'], 'danger')
+            # tiesiog persiųstame su atnaujinta suvestine
+            return render_template('order/checkout.html',
+                                   form=form,
+                                   cart_items=cart_items,
+                                   summary=summary)
 
-# Visų užsakymų sąrašas (ADMIN)
+        elif action == 'confirm' and form.validate():
+            # patvirtiname užsakymą
+            if summary['error']:
+                flash(summary['error'], 'danger')
+                return render_template('order/checkout.html',
+                                       form=form,
+                                       cart_items=cart_items,
+                                       summary=summary)
+
+            order, error = create_order(
+                user_id=current_user.id,
+                cart_items=cart_items,
+                total_amount=summary['total_final'],
+                shipping_address=form.shipping_address.data,
+                notes=None,
+                created_by=current_user.id,
+                discount_id=(summary['discount_obj'].id if summary['discount_obj'] else None)
+            )
+            if order:
+                clear_cart(current_user.id)
+                flash("Užsakymas sukurtas!", "success")
+                return redirect(url_for('order.user_orders'))
+            else:
+                flash(error or "Klaida kuriant užsakymą.", "danger")
+            # po klaidos – krentu žemyn, render ilgesnės formos
+
+    else:
+        # GET metodas
+        summary = get_cart_summary(cart_items, None)
+        form.total_price.data = summary['total_final']
+
+    return render_template('order/checkout.html',
+                           form=form,
+                           cart_items=cart_items,
+                           summary=summary)
+# --- ADMIN ---
 @order_bp.route('/all')
 @login_required
 @admin_required
@@ -64,7 +114,6 @@ def all_orders():
     orders = get_all_orders()
     return render_template('admin/orders.html', orders=orders)
 
-# Užsakymo statuso keitimas (ADMIN)
 @order_bp.route('/update_status/<int:order_id>', methods=['POST'])
 @login_required
 @admin_required
@@ -77,7 +126,6 @@ def update_order_status_route(order_id):
         flash('Klaida atnaujinant statusą.', 'danger')
     return redirect(url_for('order.all_orders'))
 
-# Užsakymo ištrynimas (ADMIN)
 @order_bp.route('/delete/<int:order_id>', methods=['POST'])
 @login_required
 @admin_required
