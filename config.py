@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -44,3 +45,9 @@ class ProductionConfig(Config):
 
 # Jei reikia – naudok taip:
 # app.config.from_object('config.DevelopmentConfig')
+
+
+class Config:
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+main
