@@ -31,9 +31,11 @@ class Config:
     # Leidžiami failų tipai nuotraukoms (naudojant Flask-Uploads)
     ALLOWED_IMAGE_EXTENSIONS = os.environ.get('ALLOWED_IMAGE_EXTENSIONS', 'jpg,jpeg,png,gif,webp').split(',')
 
+
     STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
     DOMAIN_URL = os.environ.get('DOMAIN_URL', 'http://localhost:5000')
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

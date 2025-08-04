@@ -1,4 +1,3 @@
-
 {% extends "layout.html" %}
 {% block title %}Papildyti balansą{% endblock %}
 
@@ -7,70 +6,25 @@
     <h2 class="balance-title">Papildyti balansą</h2>
     <div class="balance-card">
         <div class="balance-info">
-            Turimas balansas:
-            <span class="balance-amount">{{ user.balance|round(2) }} €</span>
+            <div>Jūsų dabartinis balansas:</div>
+            <div class="balance-amount">{{ user.balance }} €</div>
         </div>
-
-        <form id="stripe-balance-form" class="balance-form"
-              autocomplete="off" name="stripe-balance" spellcheck="false" autocorrect="off" autocapitalize="off">
-            
-            <label for="balance-amount">Suma (€)</label>
-            <input type="number" step="0.01" min="0.50" id="balance-amount" name="amount"
-                   placeholder="Pvz., 10.00" required autofocus autocomplete="off">
-
-            <!-- Stripe kortelės laukai ATSKIRAI -->
-            <div class="card-fields-container">
-                
-                <label for="card-number-element">Kortelės numeris</label>
-                <div id="card-number-element" class="stripe-card-element"></div>
-                
-                <div class="card-row">
-                    <div class="card-field-half">
-                        <label for="card-expiry-element">MM / YY</label>
-                        <div id="card-expiry-element" class="stripe-card-element"></div>
-                    </div>
-                    <div class="card-field-half">
-                        <label for="card-cvc-element">CVC</label>
-                        <div id="card-cvc-element" class="stripe-card-element"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stripe error/JS klaidų blokas -->
-            <div id="stripe-error" class="form-error"></div>
-
-            <button type="submit" class="btn btn-primary btn-block stripe-submit-btn">
-                Papildyti Stripe
-            </button>
+        <form method="POST" action="{{ url_for('add_balance') }}" class="balance-form">
+            <label for="amount">Suma (€)</label>
+            <input type="number" min="1" step="0.01" name="amount" id="amount" placeholder="Įveskite sumą..." required>
+            <button type="submit" class="btn btn-primary btn-block">Papildyti</button>
         </form>
 
-        <div class="stripe-info-section">
-            <div class="stripe-logo-container">
-                <img src="{{ url_for('static', filename='images/icons/stripe.svg') }}"
-                     alt="Stripe" class="stripe-logo">
-            </div>
-            <div class="stripe-info-text">
-                <p style="color: #1e293b !important; font-weight: 500 !important; margin: 0 0 0.5rem 0 !important;">
-                    Mokėjimai vykdomi saugiu Stripe mokėjimo langeliu.
-                </p>
-                <p style="color: #1e293b !important; font-weight: 600 !important; margin: 0 !important;">
-                    Testui galite naudoti kortelę: 
-                    <span style="font-family: 'Courier New', monospace !important; background: #ffffff !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; color: #1e293b !important; font-weight: 600 !important; border: 1px solid #d1d5db !important;">4242 4242 4242 4242</span>
-                </p>
+        <!-- Vieta mock/test mokėjimui -->
+        <div class="balance-pay-mock">
+            <button type="button" class="btn btn-secondary" onclick="alert('Testinis mokėjimas sėkmingas (demonstracinė versija).')">
+                <img src="{{ url_for('static', filename='images/icons/credit-card.svg') }}" alt="Mokėjimas" style="width:23px; vertical-align: middle; margin-right: 0.4rem;">
+                Testinis mokėjimas
+            </button>
+            <div class="balance-pay-mock-note">
+                Demo: galima integruoti su Stripe, Braintree, t.t. (<span style="color:#777;">bus realus testavimas vėliau</span>)
             </div>
         </div>
     </div>
 </div>
-
-<!-- Stripe publishable key į JS -->
-<script>
-    window.STRIPE_KEY = "{{ stripe_publishable_key }}";
-    console.log("Stripe key loaded:", window.STRIPE_KEY ? "✓" : "✗");
-</script>
-
-<!-- Stripe.js -->
-<script src="https://js.stripe.com/v3/"></script>
-
-<!-- Pagrindinis JS -->
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}
