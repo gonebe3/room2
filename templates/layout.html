@@ -84,9 +84,6 @@
                         </ul>
                     </div>
                 </li>
-                <li>
-                    <a href="#"><img src="{{ url_for('static', filename='images/icons/discount.svg') }}" class="icon icon-discount" alt="Akcijos"> Akcijos</a>
-                </li>
                 {% if current_user.is_authenticated and current_user.is_admin %}
                     <li>
                         <a href="{{ url_for('admin.dashboard') }}">

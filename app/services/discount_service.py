@@ -136,10 +136,7 @@ def update_discount(discount, form, modified_by=None):
         db.session.rollback()
         print(f"Error updating discount: {e}")
         return False
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        print(f"Error updating discount: {e}")
-        return False
+
 
 
 def activate_discount(discount_id):
