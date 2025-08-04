@@ -10,18 +10,45 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
     price = db.Column(db.Numeric(10, 2), nullable=False)  # Kaina tuo metu, kai buvo perkama
 
-    # Sekimo laukai (audit fields)
-    created_on  = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
-    created_by  = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    modified_on = db.Column(db.DateTime(timezone=True), server_default=func.now(), server_onupdate=func.now(), nullable=False)
+    # Audit fields (sukūrimo ir atnaujinimo sekimas)
+    created_on = db.Column(
+        db.DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+    created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    modified_on = db.Column(
+        db.DateTime(timezone=True),
+        server_default=func.now(),
+        server_onupdate=func.now(),
+        nullable=False
+    )
     modified_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    is_deleted  = db.Column(db.Boolean, default=False, nullable=False)
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
-    # Ryšiai
-    order = db.relationship("Order", backref="order_items", foreign_keys=[order_id])
-    product = db.relationship("Product", backref="order_items", foreign_keys=[product_id])
-    creator = db.relationship("User", foreign_keys=[created_by], uselist=False, post_update=True)
-    modifier = db.relationship("User", foreign_keys=[modified_by], uselist=False, post_update=True)
+    # Relationship’ai (naudojam back_populates abiejose pusėse!)
+    order = db.relationship(
+        "Order",
+        back_populates="order_items",
+        foreign_keys=[order_id]
+    )
+    product = db.relationship(
+        "Product",
+        back_populates="order_items",
+        foreign_keys=[product_id]
+    )
+    creator = db.relationship(
+        "User",
+        foreign_keys=[created_by],
+        uselist=False,
+        post_update=True
+    )
+    modifier = db.relationship(
+        "User",
+        foreign_keys=[modified_by],
+        uselist=False,
+        post_update=True
+    )
 
     def __repr__(self):
         return (

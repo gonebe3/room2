@@ -7,18 +7,24 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <!-- Google Fonts, pvz., Montserrat -->
+    <!-- Swiper carousel CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+    {% if stripe_publishable_key %}
+        <script>
+            window.STRIPE_KEY = "{{ stripe_publishable_key }}";
+        </script>
+    {% endif %}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <!-- HEADER -->
     <header class="main-header">
         <div class="header-top">
-            <!-- LOGO -->
             <a href="{{ url_for('product.product_list') }}" class="logo-link">
                 <img src="{{ url_for('static', filename='images/prinona_logo.png') }}" alt="Prinona Logo" class="logo">
             </a>
-            <!-- VARTOTOJO INFO -->
             <div class="header-user-info">
                 {% if current_user.is_authenticated %}
                     <span class="user-balance">
@@ -33,6 +39,11 @@
                         <img src="{{ url_for('static', filename='images/icons/logout.svg') }}" class="icon icon-logout" alt="Atsijungti">
                         Atsijungti
                     </a>
+                    <!-- Krepšelis rodomas tik prisijungus -->
+                    <a href="{{ url_for('cart.view_cart') }}" class="cart-link">
+                        <img src="{{ url_for('static', filename='images/icons/cart.svg') }}" class="icon icon-cart" alt="Krepšelis">
+                        <span class="cart-count">{% if cart_count %}{{ cart_count }}{% else %}0{% endif %}</span>
+                    </a>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="login-link">
                         <img src="{{ url_for('static', filename='images/icons/user.svg') }}" class="icon icon-login" alt="Prisijungti">
@@ -43,13 +54,7 @@
                         Registruotis
                     </a>
                 {% endif %}
-                <!-- KREPŠELIS -->
-                <a href="{{ url_for('cart.view_cart') }}" class="cart-link">
-                    <img src="{{ url_for('static', filename='images/icons/cart.svg') }}" class="icon icon-cart" alt="Krepšelis">
-                    <span class="cart-count">{% if cart_count %}{{ cart_count }}{% else %}0{% endif %}</span>
-                </a>
             </div>
-            <!-- MOBILE MENU BUTTONS -->
             <button class="menu-toggle" aria-label="Atidaryti meniu">
                 <img src="{{ url_for('static', filename='images/icons/menu.svg') }}" class="icon icon-menu" alt="Meniu">
             </button>
@@ -57,24 +62,40 @@
                 <img src="{{ url_for('static', filename='images/icons/close.svg') }}" class="icon icon-close" alt="Uždaryti">
             </button>
         </div>
-        <!-- NAVBAR -->
         <nav class="main-navbar">
             <ul>
-                <li><a href="{{ url_for('product.product_list') }}" class="{% if request.endpoint=='product.product_list' %}active{% endif %}">
-                    <img src="{{ url_for('static', filename='images/icons/star.svg') }}" class="icon icon-star" alt="Prekių katalogas">
-                    Prekių katalogas
-                </a></li>
-                <li><a href="#"><img src="{{ url_for('static', filename='images/icons/filter.svg') }}" class="icon icon-filter" alt="Filtruoti"> Filtruoti</a></li>
-                <li><a href="#"><img src="{{ url_for('static', filename='images/icons/discount.svg') }}" class="icon icon-discount" alt="Akcijos"> Akcijos</a></li>
-                <li><a href="#"><img src="{{ url_for('static', filename='images/icons/settings.svg') }}" class="icon icon-settings" alt="Nustatymai"> Nustatymai</a></li>
+                <li>
+                    <a href="{{ url_for('product.product_list') }}" class="{% if request.endpoint=='product.product_list' %}active{% endif %}">
+                        <img src="{{ url_for('static', filename='images/icons/star.svg') }}" class="icon icon-star" alt="Prekių katalogas">
+                        Prekių katalogas
+                    </a>
+                </li>
+                <li class="categories-dropdown">
+                    <a href="#" id="categories-btn">
+                        <img src="{{ url_for('static', filename='images/icons/category.svg') }}" class="icon icon-category" alt="Kategorijos"> Kategorijos
+                    </a>
+                    <div class="categories-popup">
+                        <ul>
+                            {% for category in categories %}
+                                <li>
+                                    <a href="{{ url_for('product.products_by_category', category_id=category.id) }}">{{ category.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <a href="#"><img src="{{ url_for('static', filename='images/icons/discount.svg') }}" class="icon icon-discount" alt="Akcijos"> Akcijos</a>
+                </li>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                    <li>
+                        <a href="{{ url_for('admin.dashboard') }}">
+                            <img src="{{ url_for('static', filename='images/icons/settings.svg') }}" class="icon icon-settings" alt="Admin panelė">
+                            Admin panelė
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
-            <!-- PAIEŠKOS FORMA -->
-            <form action="{{ url_for('product.product_list') }}" method="get" class="search-form">
-                <input type="text" name="q" placeholder="Ieškoti prekių parduotuvėje" value="{{ request.args.get('q', '') }}">
-                <button type="submit">
-                    <img src="{{ url_for('static', filename='images/icons/search.svg') }}" class="icon icon-search" alt="Ieškoti">
-                </button>
-            </form>
         </nav>
     </header>
 
@@ -92,19 +113,16 @@
         {% endwith %}
     </div>
 
-    <!-- PAGRINDINIS TURINYS -->
     <main>
         {% block content %}
-        <!-- Čia bus įdedamas konkretus puslapio turinys -->
         {% endblock %}
     </main>
 
-    <!-- FOOTER -->
     <footer class="main-footer">
         <div class="footer-content">
             <div>
                 <img src="{{ url_for('static', filename='images/prinona_logo.png') }}" class="footer-logo" alt="Prinona">
-                <strong>Prinona</strong> &copy; {{ now.year }}
+                <strong></strong> &copy; {{ now.year }}
             </div>
             <div class="footer-links">
                 <a href="{{ url_for('main.contacts') }}">
@@ -119,12 +137,13 @@
                     <img src="{{ url_for('static', filename='images/icons/email.svg') }}" class="icon icon-email" alt="El. paštas"> El. paštas
                 </a>
                 |
-                <a href="#">Privatumo politika</a>
+                <a href="{{ url_for('main.privacy_policy') }}">Privatumo politika</a>
             </div>
         </div>
     </footer>
 
-    <!-- JS -->
+    <!-- JS: Pirma Swiper, po to tavo main.js -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

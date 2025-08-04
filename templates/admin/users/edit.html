@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}Redaguoti naudotoją{% endblock %}
+
+{% block content %}
+<div class="container admin-users-edit-container">
+    <h2 class="admin-users-title">Redaguoti naudotoją</h2>
+
+    <form method="POST" action="{{ url_for('admin.edit_user', user_id=user.id) }}">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.username.label }}
+            {{ form.username(class_="form-control", maxlength=64, required=True, autofocus=True, placeholder="Vartotojo vardas") }}
+            {% if form.username.errors %}
+                <div class="form-error">{{ form.username.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class_="form-control", maxlength=120, required=True, placeholder="El. pašto adresas") }}
+            {% if form.email.errors %}
+                <div class="form-error">{{ form.email.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.password.label }}
+            {{ form.password(class_="form-control", minlength=8, maxlength=128, placeholder="Palikite tuščią, jei nesiruošiate keisti") }}
+            {% if form.password.errors %}
+                <div class="form-error">{{ form.password.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.role.label }}
+            {{ form.role(class_="form-control") }}
+            {% if form.role.errors %}
+                <div class="form-error">{{ form.role.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.balance.label }}
+            {{ form.balance(class_="form-control", required=True, min=0, step="0.01") }}
+            {% if form.balance.errors %}
+                <div class="form-error">{{ form.balance.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group form-checkbox">
+            {{ form.is_active() }}
+            {{ form.is_active.label }}
+        </div>
+
+        <div class="form-group">
+            {{ form.submit(class_="btn btn-admin") }}
+            <a href="{{ url_for('admin.user_list') }}" class="btn btn-secondary">Atšaukti</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
