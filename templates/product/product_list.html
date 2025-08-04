@@ -7,6 +7,7 @@
     <!-- Filtrai ir rūšiavimas -->
     <div class="catalog-filters">
         <form method="get" class="filters-form">
+
             <input type="text" name="q" placeholder="Ieškoti prekių..." value="{{ request.args.get('q', '') }}">
             <select name="sort_by">
                 <option value="default" {% if request.args.get('sort_by') == 'default' %}selected{% endif %}>Rikiuoti pagal</option>
@@ -19,65 +20,53 @@
         </form>
     </div>
 
-    <!-- Swiper carousel -->
-    <div class="swiper mySwiper">
-        <div class="swiper-wrapper">
-            {% for product in products %}
-            <div class="swiper-slide">
-                <div class="product-card">
-                    {% if product.discount %}
-                        <div class="product-badge discount-badge">-{{ product.discount }}%</div>
-                    {% endif %}
-                    <div class="product-img-wrap">
-                        <img src="{{ url_for('static', filename='uploads/' ~ (product.image_filename or 'default.png')) }}"
-                             alt="{{ product.name }}" class="product-img" loading="lazy">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">{{ product.name }}</h3>
-                        <div class="product-rating mb-2" aria-label="Vidutinis įvertinimas">
-                            {% set avg = avg_ratings[product.id] if avg_ratings[product.id] is not none else 0 %}
-                            {% for i in range(1, 6) %}
-                                {% if i <= avg|round(0, 'floor') %}
-                                    <span class="star filled" aria-hidden="true">&#9733;</span>
-                                {% else %}
-                                    <span class="star" aria-hidden="true">&#9734;</span>
-                                {% endif %}
-                            {% endfor %}
-                            <span class="rating-count">({{ reviews_count[product.id] if reviews_count[product.id] is not none else 0 }})</span>
-                        </div>
-                        <div class="product-pricing mb-2">
-                            {% if product.discount_price %}
-                                <span class="price-old">{{ product.price|round(2) }}€</span>
-                                <span class="price-new">{{ product.discount_price|round(2) }}€</span>
-                            {% else %}
-                                <span class="price-new">{{ product.price|round(2) }}€</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="product-actions">
-                        <a href="{{ url_for('product.product_detail', product_id=product.id) }}" class="btn btn-secondary btn-details">Apžiūrėti</a>
-                        {% if current_user.is_authenticated %}
-                        <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
-                            {{ forms[product.id].hidden_tag() }}
-                            {{ forms[product.id].quantity(type="hidden", value=1) }}
-                            {{ forms[product.id].submit(class_="btn btn-primary btn-cart") }}
-                        </form>
+    <!-- Prekių sąrašas -->
+    <div class="catalog-grid">
+        {% for product in products %}
+        <div class="product-card">
+            {% if product.discount %}
+                <div class="product-badge discount-badge">-{{ product.discount }}%</div>
+            {% endif %}
+            <div class="product-img-wrap">
+                <img src="{{ url_for('static', filename='images/products/' ~ product.image) }}"
+                     alt="{{ product.title }}" class="product-img">
+            </div>
+            <div class="product-info">
+                <h3 class="product-title">{{ product.title }}</h3>
+                <div class="product-brand">{{ product.brand }}</div>
+                <div class="product-rating">
+                    {% for i in range(1, 6) %}
+                        {% if i <= product.rating %}
+                            <span class="star filled">&#9733;</span>
+                        {% else %}
+                            <span class="star">&#9734;</span>
                         {% endif %}
-                    </div>
+                    {% endfor %}
+                    <span class="rating-count">({{ product.reviews_count }})</span>
+                </div>
+                <div class="product-pricing">
+                    {% if product.discount_price %}
+                        <span class="price-old">{{ product.price }}€</span>
+                        <span class="price-new">{{ product.discount_price }}€</span>
+                    {% else %}
+                        <span class="price-new">{{ product.price }}€</span>
+                    {% endif %}
                 </div>
             </div>
-            {% else %}
-            <div class="swiper-slide">
-                <div class="no-products">
-                    Prekių nerasta pagal pasirinktus filtrus.
-                </div>
+            <div class="product-actions">
+                <a href="{{ url_for('product_detail', id=product.id) }}" class="btn btn-secondary btn-details">Apžiūrėti</a>
+                <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+                    <button type="submit" class="btn btn-primary btn-cart">
+                        <span class="icon-cart"></span> Į krepšelį
+                    </button>
+                </form>
             </div>
-            {% endfor %}
         </div>
-        <!-- Swiper navigation -->
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-pagination"></div>
+        {% else %}
+            <div class="no-products">
+                Prekių nerasta pagal pasirinktus filtrus.
+            </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
